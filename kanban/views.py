@@ -1,5 +1,9 @@
-from django.views.generic import DetailView
-from kanban.models import Board, Ticket
+import json
+
+from django.core import serializers
+from django.views.generic import DetailView, View
+from django.http import JsonResponse
+from kanban.models import Board, Ticket, TicketStatus
 
 
 class BoardView(DetailView):
@@ -16,3 +20,15 @@ class BoardView(DetailView):
 class TicketView(DetailView):
     template_name = "kanban/ticket.html"
     model = Ticket
+
+
+class UpdateTicketStatusAJAXView(View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        ticket = Ticket.objects.get(id=data.get("id"))
+        status_id = data.get("status")
+        ticket.status = TicketStatus.objects.get(id=status_id)
+        ticket.save()
+        response = ticket.__dict__
+        del response["_state"]
+        return JsonResponse(response)

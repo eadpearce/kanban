@@ -23,10 +23,10 @@
     {% for status in statuses %}
     <div class="kanban-column">
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
-      <ul class="kanban-ticket-list">
+      <ul class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
         <li>
-          <div class="kanban-ticket" draggable="true">
+          <div class="kanban-ticket" draggable="true" data-id="{{ ticket.id }}">
             <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
             <p class="govuk-!-font-size-16">ID: {{ ticket.id }}</p>
           </div>
@@ -37,11 +37,28 @@
     {% endfor %}
 </div>
 <script>
+  function updateTicket(draggedTicket, column) {
+    console.log("updating", draggedTicket);
+    fetch("/ajax/tickets/update-status/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: draggedTicket.dataset.id,
+        status: column.dataset.status,
+      }),
+    })
+    .then((response) => response.json())
+    .catch((err) => console.error(err));
+  }
+
   const tickets = document.querySelectorAll(".kanban-ticket");
 
   tickets.forEach(ticket => {
     ticket.addEventListener("dragstart", (e) => {
-      ticket.id = "dragged-task";
+      ticket.id = "dragged-ticket";
       e.dataTransfer.effectAllowed = "move";
       // Custom type to identify a task drag
       e.dataTransfer.setData("ticket", "");
@@ -61,9 +78,10 @@
 
     column.addEventListener("drop", (e) => {
       e.preventDefault();
-      const draggedTask = document.getElementById("dragged-task");
-      draggedTask.remove();
-      column.appendChild(draggedTask);
+      const draggedTicket = document.getElementById("dragged-ticket");
+      draggedTicket.remove();
+      column.appendChild(draggedTicket);
+      updateTicket(draggedTicket, column);
     });
   });
 </script>

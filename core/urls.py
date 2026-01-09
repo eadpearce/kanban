@@ -16,13 +16,20 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
 from core import views
+from kanban import views as kanban_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.HomeView.as_view(), name="index"),
-    path("boards/", include("kanban.urls")),
+    path("boards/<int:pk>/", kanban_views.BoardView.as_view(), name="board-detail"),
+    path("tickets/<int:pk>/", kanban_views.TicketView.as_view(), name="ticket-detail"),
+    path(
+        "ajax/tickets/update-status/",
+        kanban_views.UpdateTicketStatusAJAXView.as_view(),
+        name="ajax-ticket-update",
+    ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
