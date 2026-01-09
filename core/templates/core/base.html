@@ -14,6 +14,7 @@
   <link rel="apple-touch-icon" href="{% static 'assets/rebrand/images/govuk-icon-180.png' %}">
   <link rel="manifest" href="{% static 'assets/rebrand/manifest.json' %}">
   <link rel="stylesheet" href="{% static 'css/govuk-frontend.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body class="govuk-template__body">
@@ -22,7 +23,7 @@
   </script>
   <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
   <header class="govuk-header" data-module="govuk-header">
-    <div class="govuk-header__container govuk-width-container">
+    <div class="govuk-header__container govuk-!-padding-right-2 govuk-!-padding-left-2">
       <div class="govuk-header__logo">
         <a href="/" class="govuk-header__link govuk-header__link--homepage">
           <svg
@@ -52,8 +53,8 @@
       </div>
     </div>
   </header>
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper" id="main-content">
+  <div class="{% block container_class_override %}govuk-width-container{% endblock %}">
+    <main class="{% block main_class_override %}govuk-main-wrapper{% endblock %}" id="main-content">
       {% block content %}{% endblock %}
     </main>
   </div>

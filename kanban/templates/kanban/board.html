@@ -2,23 +2,69 @@
 
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
-{% block content %}
-<h1 class="govuk-heading-xl">{{ object.name }}</h1>
+{% block container_class_override %}govuk-!-padding-2{% endblock %}
+{% block main_class_override %}{% endblock %}
 
-<h2 class="govuk-heading-l">Tickets</h2>
-<ul>
-  {% for status in statuses %}
-  <li>
-      <h3>{{ status.name }}</h3>
-      <ul>
-        {% for ticket in status.tickets.all %}
+{% block content %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>{{ object.name }}</span>
+    </li>
+  </ol>
+</nav>
+
+<h1 class="govuk-heading-m">{{ object.name }}</h1>
+
+<div class="kanban-container">
+    {% for status in statuses %}
+    <div class="kanban-column">
+      <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
+      <ul class="kanban-ticket-list">
+      {% for ticket in status.tickets.all %}
         <li>
-            <a href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
-            <p>{{ ticket.description }}</p>
+          <div class="kanban-ticket" draggable="true">
+            <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+            <p class="govuk-!-font-size-16">ID: {{ ticket.id }}</p>
+          </div>
         </li>
         {% endfor %}
       </ul>
-  </li>
-  {% endfor %}
-</ul>
+    </div>
+    {% endfor %}
+</div>
+<script>
+  const tickets = document.querySelectorAll(".kanban-ticket");
+
+  tickets.forEach(ticket => {
+    ticket.addEventListener("dragstart", (e) => {
+      ticket.id = "dragged-task";
+      e.dataTransfer.effectAllowed = "move";
+      // Custom type to identify a task drag
+      e.dataTransfer.setData("ticket", "");
+    });
+
+    ticket.addEventListener("dragend", (e) => {
+      ticket.removeAttribute("id");
+    });
+  })
+
+  const columns = document.querySelectorAll(".kanban-ticket-list");
+
+  columns.forEach(column => {
+    column.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    column.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const draggedTask = document.getElementById("dragged-task");
+      draggedTask.remove();
+      column.appendChild(draggedTask);
+    });
+  });
+</script>
 {% endblock %}
