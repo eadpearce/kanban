@@ -3,9 +3,9 @@
 {% block page_title %}Kanban{% endblock %}
 
 {% block content %}
-<h1>Home</h1>
-<h2>Boards</h2>
-<ul>
+<h1 class="govuk-heading-xl">Home</h1>
+<h2 class="govuk-heading-l">Boards</h2>
+<ul class="govuk-list">
   {% for board in boards %}
   <li>
       <a href="{% url 'board-detail' board.id %}">{{ board.name }}</a>

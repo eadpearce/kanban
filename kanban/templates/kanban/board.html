@@ -3,9 +3,9 @@
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
 {% block content %}
-<h1>{{ object.name }}</h1>
+<h1 class="govuk-heading-xl">{{ object.name }}</h1>
 
-<h2>Tickets</h2>
+<h2 class="govuk-heading-l">Tickets</h2>
 <ul>
   {% for status in statuses %}
   <li>
