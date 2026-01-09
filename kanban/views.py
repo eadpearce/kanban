@@ -8,6 +8,7 @@ class BoardView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["statuses"] = self.object.statuses.all()
         context["tickets"] = self.object.tickets.all()
         return context
 

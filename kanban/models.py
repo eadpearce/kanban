@@ -20,6 +20,7 @@ class Board(TimestampedMixin):
 
 class TicketStatus(models.Model):
     name = models.CharField(max_length=100)
+    board = models.ForeignKey(Board, related_name="statuses", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Status {self.id}: {self.name}"

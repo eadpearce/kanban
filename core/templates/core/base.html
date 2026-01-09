@@ -4,6 +4,11 @@
   </head>
   <body>
     <main>
+      <header>
+        <nav>
+          <a href="{% url 'index' %}">Home</a>
+        </nav>
+      </header>
       {% block content %}{% endblock %}
     </main>
   </body>

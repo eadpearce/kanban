@@ -7,10 +7,17 @@
 
 <h2>Tickets</h2>
 <ul>
-  {% for ticket in tickets %}
+  {% for status in statuses %}
   <li>
-      <a href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }} ({{ ticket.status.name }})</a>
-      <p>{{ ticket.description }}</p>
+      <h3>{{ status.name }}</h3>
+      <ul>
+        {% for ticket in status.tickets.all %}
+        <li>
+            <a href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+            <p>{{ ticket.description }}</p>
+        </li>
+        {% endfor %}
+      </ul>
   </li>
   {% endfor %}
 </ul>
