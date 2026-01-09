@@ -1,7 +1,17 @@
 from django.db import models
 
 
-class Board(models.Model):
+class TimestampedMixin(models.Model):
+    """Mixin adding timestamps for creation and last update."""
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Board(TimestampedMixin):
     name = models.CharField(max_length=200)
 
     def __str__(self):
@@ -15,12 +25,10 @@ class TicketStatus(models.Model):
         return f"Status {self.id}: {self.name}"
 
 
-class Ticket(models.Model):
+class Ticket(TimestampedMixin):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    board = models.OneToOneField(
-        Board, related_name="tickets", on_delete=models.CASCADE
-    )
+    board = models.ForeignKey(Board, related_name="tickets", on_delete=models.CASCADE)
     status = models.ForeignKey(
         TicketStatus,
         null=True,

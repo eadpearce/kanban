@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban{% endblock %}
+
+{% block content %}
+<h1>Home</h1>
+<h2>Boards</h2>
+<ul>
+  {% for board in boards %}
+  <li>
+      <a href="{% url 'board-detail' board.id %}">{{ board.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

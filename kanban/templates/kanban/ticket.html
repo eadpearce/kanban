@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'board-detail' ticket.board.id %}">Back to board</a>
+<h1>{{ object.title }}</h1>
+<dl>
+  <dt>Created at:</dt>
+  <dd>{{ ticket.created_at }}</dd>
+  <dt>Updated at:</dt>
+  <dd>{{ ticket.updated_at }}</dd>
+  <dt>Status:</dt>
+  <dd>{{ ticket.status.name }}</dd>
+  <dt>Description:</dt>
+  <dd>{{ ticket.description }}</dd>
+</dl>
+{% endblock %}

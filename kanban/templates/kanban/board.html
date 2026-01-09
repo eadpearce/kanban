@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ object.name }}</h1>
+
+<h2>Tickets</h2>
+<ul>
+  {% for ticket in tickets %}
+  <li>
+      <a href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }} ({{ ticket.status.name }})</a>
+      <p>{{ ticket.description }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
