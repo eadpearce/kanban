@@ -21,9 +21,13 @@ class Board(TimestampedMixin):
 class TicketStatus(models.Model):
     name = models.CharField(max_length=100)
     board = models.ForeignKey(Board, related_name="statuses", on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"Status {self.id}: {self.name}"
+
+    class Meta:
+        ordering = ("order",)
 
 
 class Ticket(TimestampedMixin):
@@ -37,6 +41,10 @@ class Ticket(TimestampedMixin):
         related_name="tickets",
         on_delete=models.DO_NOTHING,
     )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order",)
 
     def __str__(self):
         return f"Ticket {self.id}: {self.title}"

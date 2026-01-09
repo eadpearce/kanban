@@ -34,9 +34,9 @@
     </div>
     {% endfor %}
 </div>
+
 <script>
-  function updateTicket(draggedTicket, column) {
-    console.log("updating", draggedTicket);
+  function updateTicket(ticket, column, order) {
     fetch("/ajax/tickets/update-status/", {
       method: "POST",
       headers: {
@@ -44,12 +44,20 @@
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: draggedTicket.dataset.id,
-        status: column.dataset.status,
+        id: ticket,
+        status: column,
+        order: order,
       }),
     })
     .then((response) => response.json())
     .catch((err) => console.error(err));
+  }
+
+  function updateColumn(column) {
+    column.querySelectorAll(".kanban-ticket").forEach((ticket, index) => {
+      updateTicket(ticket.dataset.id, column.dataset.status, index);
+      console.log(ticket.dataset.id, column.dataset.status, index);
+    })
   }
 
   const tickets = document.querySelectorAll(".kanban-ticket");
@@ -85,7 +93,7 @@
       draggedTicket.remove();
       column.insertBefore(draggedTicket, placeholder);
       placeholder.remove();
-      updateTicket(draggedTicket, column);
+      updateColumn(column);
     });
   });
 
