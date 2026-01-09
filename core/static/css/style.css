@@ -38,3 +38,8 @@
   box-shadow: 1px 1px 2px #eaebec;
   margin-bottom: 5px;
 }
+
+.kanban-placeholder {
+  border: 2px dashed #1d70b8;
+  border-radius: 3px;
+}

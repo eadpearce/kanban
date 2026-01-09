@@ -25,12 +25,10 @@
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
       <ul class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
-        <li>
-          <div class="kanban-ticket" draggable="true" data-id="{{ ticket.id }}">
+          <li class="kanban-ticket" draggable="true" data-id="{{ ticket.id }}">
             <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
             <p class="govuk-!-font-size-16">ID: {{ ticket.id }}</p>
-          </div>
-        </li>
+          </li>
         {% endfor %}
       </ul>
     </div>
@@ -72,17 +70,66 @@
   const columns = document.querySelectorAll(".kanban-ticket-list");
 
   columns.forEach(column => {
-    column.addEventListener("dragover", (e) => {
-      e.preventDefault();
+    column.addEventListener("dragover", movePlaceholder);
+    column.addEventListener("dragleave", (event) => {
+      if (column.contains(event.relatedTarget)) return;
+      const placeholder = column.querySelector(".kanban-placeholder");
+      placeholder?.remove();
     });
 
     column.addEventListener("drop", (e) => {
       e.preventDefault();
       const draggedTicket = document.getElementById("dragged-ticket");
+      const placeholder = column.querySelector(".kanban-placeholder");
+      if (!placeholder) return;
       draggedTicket.remove();
-      column.appendChild(draggedTicket);
+      column.insertBefore(draggedTicket, placeholder);
+      placeholder.remove();
       updateTicket(draggedTicket, column);
     });
   });
+
+  function makePlaceholder(draggedTicket) {
+    const placeholder = document.createElement("li");
+    placeholder.classList.add("kanban-placeholder");
+    placeholder.style.height = `${draggedTicket.offsetHeight}px`;
+    return placeholder;
+  }
+
+  function movePlaceholder(event) {
+    if (!event.dataTransfer.types.includes("ticket")) {
+      return;
+    }
+    event.preventDefault();
+    const draggedTicket = document.getElementById("dragged-ticket");
+    const column = event.currentTarget;
+    const tickets = column.children;
+    const existingPlaceholder = column.querySelector(".kanban-placeholder");
+    if (existingPlaceholder) {
+      const placeholderRect = existingPlaceholder.getBoundingClientRect();
+      if (
+        placeholderRect.top <= event.clientY &&
+        placeholderRect.bottom >= event.clientY
+      ) {
+        return;
+      }
+    }
+    for (const ticket of tickets) {
+      if (ticket.getBoundingClientRect().bottom >= event.clientY) {
+        if (ticket === existingPlaceholder) return;
+        existingPlaceholder?.remove();
+        if (ticket === draggedTicket || ticket.previousElementSibling === draggedTicket)
+          return;
+        column.insertBefore(
+          existingPlaceholder ?? makePlaceholder(draggedTicket),
+          ticket,
+        );
+        return;
+      }
+    }
+    existingPlaceholder?.remove();
+    if (tickets.lastElementChild === draggedTicket) return;
+    column.append(existingPlaceholder ?? makePlaceholder(draggedTicket));
+  }
 </script>
 {% endblock %}
