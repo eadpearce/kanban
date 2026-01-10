@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="govuk-!-width-two-thirds">
+  {% block before_form %}
+  {% endblock %}
+
+  {% if form.errors %}
+  <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+    <h2 class="govuk-error-summary__title" id="error-summary-title">
+      There is a problem
+    </h2>
+    <div class="govuk-error-summary__body">
+      <ul class="govuk-list govuk-error-summary__list">
+        {% for name, errors in form.errors.items %}
+            {% for error in errors %}
+              <li>
+                <a href="#id_{{ name }}">{{ error }}</a>
+              </li>
+            {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <form action="" method="POST" novalidate>
+    {% block form %}
+    {% crispy form %}
+    {% endblock %}
+  </form>
+
+{% endblock %}
+</div>

@@ -1,8 +1,11 @@
 import json
 
-from django.views.generic import DetailView, View
+from django.urls import reverse
+from django.shortcuts import redirect
+from django.views.generic import DetailView, View, FormView
 from django.http import JsonResponse
 from kanban.models import Board, Ticket, TicketStatus
+from kanban import forms
 
 
 class BoardView(DetailView):
@@ -18,6 +21,29 @@ class BoardView(DetailView):
 class TicketView(DetailView):
     template_name = "kanban/ticket.html"
     model = Ticket
+
+
+class CreateTicketView(FormView):
+    form_class = forms.TicketCreateForm
+    template_name = "core/form.html"
+
+    def get_success_url(self, board_id):
+        return redirect(reverse("board-detail", kwargs={"pk": board_id}))
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        board = Board.objects.get(pk=self.kwargs.get("pk"))
+        Ticket.objects.create(
+            title=data["title"],
+            description=data["description"],
+            board=board,
+        )
+        return self.get_success_url(board.id)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board_id"] = self.kwargs.get("pk")
+        return kwargs
 
 
 class UpdateTicketStatusAJAXView(View):

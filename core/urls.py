@@ -25,6 +25,11 @@ from kanban import views as kanban_views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.HomeView.as_view(), name="index"),
+    path(
+        "boards/<int:pk>/tickets/create/",
+        kanban_views.CreateTicketView.as_view(),
+        name="create-ticket",
+    ),
     path("boards/<int:pk>/", kanban_views.BoardView.as_view(), name="board-detail"),
     path("tickets/<int:pk>/", kanban_views.TicketView.as_view(), name="ticket-detail"),
     path(

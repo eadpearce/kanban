@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5c8bc3e0c329724677186195ab40019638d2f24888768ce53020b01899917fde"
+            "sha256": "d165a7d14908571266fa73e1c279d6e4dad05d4acfb057414130d1c6c886251e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -33,6 +33,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==3.0.1"
         },
+        "crispy-forms-gds": {
+            "hashes": [
+                "sha256:485158d5cb4a3a04553d50532b6ba3db0e3dd809d3bda46b30f43b8f9274119f",
+                "sha256:703a91474206684f286c27351bd504f22605b346ce4e5e54af33873f27ca316d"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==2.0.1"
+        },
         "decorator": {
             "hashes": [
                 "sha256:65f266143752f734b0a7cc83c46f4618af75b8c5911b00ccb61d0ac9b6da0360",
@@ -49,6 +58,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.12'",
             "version": "==6.0.1"
+        },
+        "django-crispy-forms": {
+            "hashes": [
+                "sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38",
+                "sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==2.3"
         },
         "executing": {
             "hashes": [

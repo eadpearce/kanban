@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 python-dotenv = "*"
 ipython = "*"
+crispy-forms-gds = "*"
+django-crispy-forms = "*"
 
 [dev-packages]
 
