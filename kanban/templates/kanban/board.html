@@ -53,11 +53,31 @@
     .catch((err) => console.error(err));
   }
 
-  function updateColumn(column) {
-    column.querySelectorAll(".kanban-ticket").forEach((ticket, index) => {
-      updateTicket(ticket.dataset.id, column.dataset.status, index);
-      console.log(ticket.dataset.id, column.dataset.status, index);
+  function updateTicketsInColumn(column, ticket_data) {
+    fetch("/ajax/tickets/bulk-update-status/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticket_data,
+      }),
     })
+    .then((response) => response.json())
+    .catch((err) => console.error(err));
+  }
+
+  function updateColumn(column) {
+    const tickets = [];
+    column.querySelectorAll(".kanban-ticket").forEach((ticket, index) => {
+      tickets.push({
+        id: ticket.dataset.id,
+        status: column.dataset.status,
+        order: index,
+      })
+    })
+    updateTicketsInColumn(column, tickets);
   }
 
   const tickets = document.querySelectorAll(".kanban-ticket");

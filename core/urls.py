@@ -30,6 +30,11 @@ urlpatterns = [
     path(
         "ajax/tickets/update-status/",
         kanban_views.UpdateTicketStatusAJAXView.as_view(),
-        name="ajax-ticket-update",
+        name="ajax-ticket-update-status",
+    ),
+    path(
+        "ajax/tickets/bulk-update-status/",
+        kanban_views.BulkUpdateTicketStatusAJAXView.as_view(),
+        name="ajax-ticket-bulk-update-status",
     ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
