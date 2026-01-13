@@ -6,6 +6,26 @@ from django.views.generic import DetailView, View, FormView, ListView, UpdateVie
 from django.http import JsonResponse
 from kanban.models import Board, Ticket, TicketStatus
 from kanban import forms
+from kanban.constants import BasicStatuses
+
+
+class CreateBoardView(FormView):
+    form_class = forms.BoardCreateForm
+    template_name = "core/form.html"
+
+    def get_success_url(self, board_id):
+        return redirect(reverse("board-detail", kwargs={"pk": board_id}))
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        board = Board.objects.create(
+            name=data["name"],
+        )
+        # create basic statuses by default
+        for i, name in enumerate(BasicStatuses.values):
+            TicketStatus.objects.create(name=name, board=board, order=i)
+
+        return self.get_success_url(board.id)
 
 
 class BoardView(DetailView):
@@ -50,6 +70,7 @@ class CreateTicketView(FormView):
         Ticket.objects.create(
             title=data["title"],
             description=data["description"],
+            status=data["status"],
             board=board,
         )
         return self.get_success_url(board.id)

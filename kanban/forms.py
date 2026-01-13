@@ -7,6 +7,34 @@ from crispy_forms_gds import layout
 from kanban.models import Ticket, Board, TicketStatus
 
 
+class BoardCreateForm(forms.ModelForm):
+    name = forms.CharField(
+        label="Name",
+        error_messages={
+            "required": "Please enter a name",
+        },
+    )
+
+    class Meta:
+        model = Board
+        fields = ("name",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML.h1("Create a new board"),
+            "name",
+            layout.Submit(
+                "submit",
+                "Create",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
 class TicketCreateForm(forms.ModelForm):
     title = forms.CharField(
         label="Title",
@@ -35,6 +63,8 @@ class TicketCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         board_id = kwargs.pop("board_id")
         super().__init__(*args, **kwargs)
+
+        self.fields["status"].queryset = TicketStatus.objects.filter(board__id=board_id)
 
         back_url = reverse_lazy("board-detail", kwargs={"pk": board_id})
 

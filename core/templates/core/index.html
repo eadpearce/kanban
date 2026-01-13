@@ -4,6 +4,7 @@
 
 {% block content %}
 <h1 class="govuk-heading-xl">Home</h1>
+<p><a href="{% url 'board-create' %}" class="govuk-link govuk-link--no-visited-state">Create a new board</a></p>
 <h2 class="govuk-heading-l">Boards</h2>
 <ul class="govuk-list">
   {% for board in boards %}
