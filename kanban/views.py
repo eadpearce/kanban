@@ -155,6 +155,7 @@ class CreateTicketView(FormView):
             description=data["description"],
             status=data["status"],
             board=board,
+            author=self.request.user,
         )
         return self.get_success_url(board.id)
 

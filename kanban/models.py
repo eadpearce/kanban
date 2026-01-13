@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class TimestampedMixin(models.Model):
@@ -42,6 +45,13 @@ class Ticket(TimestampedMixin):
         on_delete=models.DO_NOTHING,
     )
     order = models.PositiveIntegerField(default=0)
+    author = models.ForeignKey(
+        User,
+        related_name="created_tickets",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("order",)
