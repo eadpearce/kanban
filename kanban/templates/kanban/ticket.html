@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
@@ -27,6 +28,16 @@
     <dd class="govuk-summary-list__value">{% if object.author %}{{ object.author.get_full_name }} ({{ object.author.email }}){% else %}—{% endif %}</dd>
   </div>
   <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Assignee:</dt>
+    <dd class="govuk-summary-list__value">
+      <span id="current-assignee">{% if object.assignee %}{{ object.assignee.get_full_name }} ({{ object.assignee.email }}){% else %}—{% endif %}</span>
+      <form action="" method="POST" id="assignee">
+        {% crispy form %}
+      </form>
+    </dd>
+    <dd class="govuk-summary-list__actions"><a href="#" id="change-assignee" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
+  </div>
+  <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Created at:</dt>
     <dd class="govuk-summary-list__value">{{ object.created_at }}</dd>
   </div>
@@ -47,4 +58,32 @@
     <dd class="govuk-summary-list__value">{{ object.board }}</dd>
   </div>
 </dl>
+
+<script>
+  const currentAssignee = document.getElementById("current-assignee");
+  const form = document.getElementById("assignee");
+  form.style = "display: none";
+  const selectBox = form.querySelector("select");
+  let formVisible = false;
+
+  const changeLink = document.getElementById("change-assignee");
+
+  function showForm() {
+    if (formVisible) {
+      changeLink.innerHTML = "Change";
+      form.style = "display: none";
+      currentAssignee.style = "display: inline";
+      formVisible = false;
+    } else {
+      changeLink.innerHTML = "Cancel";
+      form.style = "display: block";
+      currentAssignee.style = "display: none";
+      formVisible = true;
+      selectBox.focus();
+    }
+  }
+
+  changeLink.addEventListener("click", showForm);
+
+</script>
 {% endblock %}

@@ -52,6 +52,13 @@ class Ticket(TimestampedMixin):
         null=True,
         blank=True,
     )
+    assignee = models.ForeignKey(
+        User,
+        related_name="assigned_tickets",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("order",)

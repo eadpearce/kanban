@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import DetailView, View, FormView, ListView, UpdateView
 from django.http import JsonResponse
-from kanban.models import Board, Ticket, TicketStatus
+from kanban.models import Board, Ticket, TicketStatus, User
 from kanban import forms
 from kanban.constants import BasicStatuses
 
@@ -135,9 +135,21 @@ class BacklogView(ListView):
         return self.get(request)
 
 
-class TicketView(DetailView):
+class TicketView(UpdateView):
     template_name = "kanban/ticket.html"
     model = Ticket
+    form_class = forms.TicketAssignUserForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["users"] = User.objects.all()
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        self.object.assignee = data["assignee"]
+        self.object.save()
+        return redirect(reverse("ticket-detail", kwargs={"pk": self.kwargs["pk"]}))
 
 
 class CreateTicketView(FormView):

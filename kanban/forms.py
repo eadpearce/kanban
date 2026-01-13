@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 
-from kanban.models import Ticket, Board, TicketStatus
+from kanban.models import Ticket, Board, TicketStatus, User
 
 
 class BoardCreateForm(forms.ModelForm):
@@ -199,6 +199,36 @@ class TicketEditForm(forms.ModelForm):
             "title",
             "description",
             "status",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class UserChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.get_full_name()
+
+
+class TicketAssignUserForm(forms.ModelForm):
+    assignee = UserChoiceField(
+        label="",
+        queryset=User.objects.all(),
+        required=False,
+    )
+
+    class Meta:
+        model = Ticket
+        fields = ("assignee",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            "assignee",
             layout.Submit(
                 "submit",
                 "Save",
