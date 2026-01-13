@@ -21,10 +21,12 @@
 
 {% block content %}
 <h1 class="govuk-heading-l"><span id="current-title">{{ object.title }}</span></h1>
+{% if is_member %}
 <form action="" method="POST" id="form-title">
   {% crispy title_form %}
 </form>
 <a href="#" id="change-title" class="govuk-link govuk-link--no-visited-state">Change</a>
+{% endif %}
 <dl class="govuk-summary-list">
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Author:</dt>
