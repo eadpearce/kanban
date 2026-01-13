@@ -66,3 +66,7 @@
 .govuk-checkboxes--small .kanban-status .govuk-checkboxes__input {
   margin-left: 0;
 }
+
+.govuk-summary-list__key, .govuk-summary-list__actions {
+  vertical-align: top;
+}

@@ -18,7 +18,7 @@ class Board(TimestampedMixin):
     name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f"Board {self.id}: {self.name}"
+        return self.name
 
 
 class TicketStatus(models.Model):
@@ -27,7 +27,7 @@ class TicketStatus(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Status {self.id}: {self.name}"
+        return self.name
 
     class Meta:
         ordering = ("order",)

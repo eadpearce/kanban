@@ -138,18 +138,26 @@ class BacklogView(ListView):
 class TicketView(UpdateView):
     template_name = "kanban/ticket.html"
     model = Ticket
-    form_class = forms.TicketAssignUserForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["users"] = User.objects.all()
-        return context
+    fields = ("assignee", "status", "description")
 
     def form_valid(self, form):
         data = form.cleaned_data
         self.object.assignee = data["assignee"]
         self.object.save()
         return redirect(reverse("ticket-detail", kwargs={"pk": self.kwargs["pk"]}))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["users"] = User.objects.all()
+        context["assignee_form"] = forms.TicketAssigneeForm(instance=self.object)
+        context["status_form"] = forms.TicketStatusForm(
+            instance=self.object,
+            board_id=self.object.board.id,
+            status_initial=self.object.status,
+        )
+        context["description_form"] = forms.TicketDescriptionForm(instance=self.object)
+        context["fields"] = json.dumps(self.fields)
+        return context
 
 
 class CreateTicketView(FormView):

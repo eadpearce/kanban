@@ -213,7 +213,7 @@ class UserChoiceField(forms.ModelChoiceField):
         return obj.get_full_name()
 
 
-class TicketAssignUserForm(forms.ModelForm):
+class TicketAssigneeForm(forms.ModelForm):
     assignee = UserChoiceField(
         label="",
         queryset=User.objects.all(),
@@ -229,6 +229,61 @@ class TicketAssignUserForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
             "assignee",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class TicketStatusForm(forms.ModelForm):
+    status = forms.ModelChoiceField(
+        label="",
+        queryset=TicketStatus.objects.all(),
+        required=False,
+    )
+
+    class Meta:
+        model = Ticket
+        fields = ("status",)
+
+    def __init__(self, *args, **kwargs):
+        board_id = kwargs.pop("board_id")
+        status_initial = kwargs.pop("status_initial")
+        super().__init__(*args, **kwargs)
+
+        self.fields["status"].queryset = TicketStatus.objects.filter(board__id=board_id)
+        self.fields["status"].initial = status_initial
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            "status",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class TicketDescriptionForm(forms.ModelForm):
+    description = forms.CharField(
+        label="",
+        widget=forms.Textarea(),
+    )
+
+    class Meta:
+        model = Ticket
+        fields = ("description",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            "description",
             layout.Submit(
                 "submit",
                 "Save",
