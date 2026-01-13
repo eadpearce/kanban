@@ -23,6 +23,9 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">Members of {{ board.name }}</h1>
+<p class="govuk-body">
+  <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-create-membership' board.pk %}">Add a new member</a>
+</p>
 <form action="" method="POST">
   {% csrf_token %}
   <div class="govuk-grid-row">

@@ -53,6 +53,11 @@ urlpatterns = [
         name="board-manage-memberships",
     ),
     path(
+        "boards/<int:pk>/create-membership/",
+        kanban_views.CreateMembershipView.as_view(),
+        name="board-create-membership",
+    ),
+    path(
         "boards/<int:pk>/edit/", kanban_views.EditBoardView.as_view(), name="board-edit"
     ),
     path(

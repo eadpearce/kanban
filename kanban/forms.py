@@ -1,11 +1,17 @@
 from django import forms
 from django.urls import reverse_lazy
+from django.core.exceptions import ValidationError
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 from crispy_forms_gds.layout import Hidden
 
-from kanban.models import Ticket, Board, TicketStatus, User
+from kanban.models import Ticket, Board, BoardMembership, TicketStatus, User
+
+
+class UserChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.get_full_name()
 
 
 class BoardCreateForm(forms.ModelForm):
@@ -64,6 +70,44 @@ class BoardEditForm(forms.ModelForm):
             layout.Submit(
                 "submit",
                 "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class CreateMembershipForm(forms.ModelForm):
+    user = UserChoiceField(label="User", queryset=User.objects.all())
+
+    class Meta:
+        model = BoardMembership
+        fields = ("user",)
+
+    def __init__(self, *args, **kwargs):
+        self.board_id = kwargs.pop("board_id")
+        super().__init__(*args, **kwargs)
+
+        back_url = reverse_lazy(
+            "board-manage-memberships", kwargs={"pk": self.board_id}
+        )
+
+        member_user_pks = BoardMembership.objects.filter(
+            board_id=self.board_id
+        ).values_list("pk")
+        self.fields["user"].queryset = User.objects.exclude(
+            pk__in=member_user_pks
+        ).order_by("last_name")
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML(
+                f'<a href="{back_url}" class="govuk-back-link">Back to manage memberships</a>'
+            ),
+            layout.HTML.h1("Add a member"),
+            "user",
+            layout.Submit(
+                "submit",
+                "Create",
                 data_module="govuk-button",
                 data_prevent_double_click="true",
             ),
@@ -207,11 +251,6 @@ class TicketEditForm(forms.ModelForm):
                 data_prevent_double_click="true",
             ),
         )
-
-
-class UserChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.get_full_name()
 
 
 class TicketAssigneeForm(forms.ModelForm):

@@ -194,6 +194,25 @@ class ManageMembershipsView(ListView):
         )
 
 
+class CreateMembershipView(FormView):
+    form_class = forms.CreateMembershipForm
+    template_name = "core/form.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board_id"] = self.kwargs["pk"]
+        return kwargs
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        board = Board.objects.get(pk=self.kwargs["pk"])
+        user = data["user"]
+        BoardMembership.objects.create(board=board, user=user, is_owner=False)
+        return redirect(
+            reverse("board-manage-memberships", kwargs={"pk": self.kwargs["pk"]})
+        )
+
+
 class BacklogView(ListView):
     template_name = "kanban/backlog.html"
     model = Ticket
