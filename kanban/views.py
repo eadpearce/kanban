@@ -259,12 +259,6 @@ class BacklogView(ListView):
 class TicketView(TemplateView):
     template_name = "kanban/ticket.html"
 
-    FORM_MAPPING = {
-        "assignee": forms.TicketAssigneeForm,
-        "status": forms.TicketStatusForm,
-        "description": forms.TicketDescriptionForm,
-    }
-
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
 
@@ -273,7 +267,9 @@ class TicketView(TemplateView):
         obj = Ticket.objects.get(pk=self.kwargs["pk"])
 
         if data["field_name"] == "assignee":
-            form = forms.TicketAssigneeForm(data=data, instance=obj)
+            form = forms.TicketAssigneeForm(
+                data=data, instance=obj, board_id=obj.board.id
+            )
             if not form.is_valid():
                 return self.form_invalid(form)
             obj.assignee = User.objects.get(id=data["assignee"])
@@ -287,7 +283,16 @@ class TicketView(TemplateView):
             )
             if not form.is_valid():
                 return self.form_invalid(form)
-            obj.status = TicketStatus.objects.get(id=data["status"])
+            if data["status"]:
+                obj.status = TicketStatus.objects.get(id=data["status"])
+            else:
+                obj.status = None
+
+        if data["field_name"] == "title":
+            form = forms.TicketTitleForm(instance=obj, data=data)
+            if not form.is_valid():
+                return self.form_invalid(form)
+            obj.title = data["title"]
 
         if data["field_name"] == "description":
             form = forms.TicketDescriptionForm(instance=obj, data=data)
@@ -304,14 +309,17 @@ class TicketView(TemplateView):
         obj = Ticket.objects.get(pk=self.kwargs["pk"])
         context["object"] = obj
         context["users"] = User.objects.all()
-        context["assignee_form"] = forms.TicketAssigneeForm(instance=obj)
+        context["title_form"] = forms.TicketTitleForm(instance=obj)
+        context["assignee_form"] = forms.TicketAssigneeForm(
+            instance=obj, board_id=obj.board.id
+        )
         context["status_form"] = forms.TicketStatusForm(
             instance=obj,
             board_id=obj.board.id,
             status_initial=obj.status,
         )
         context["description_form"] = forms.TicketDescriptionForm(instance=obj)
-        context["fields"] = json.dumps(["assignee", "status", "description"])
+        context["fields"] = json.dumps(["title", "assignee", "status", "description"])
         is_member = BoardMembership.objects.filter(
             board=obj.board, user=self.request.user
         ).exists()
@@ -328,13 +336,14 @@ class CreateTicketView(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+        author = User.objects.get(id=self.request.user.id)
         board = Board.objects.get(pk=self.kwargs.get("pk"))
         Ticket.objects.create(
             title=data["title"],
             description=data["description"],
             status=data["status"],
             board=board,
-            author=self.request.user,
+            author=author,
         )
         return self.get_success_url(board.id)
 

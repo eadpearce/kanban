@@ -20,16 +20,20 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="govuk-heading-l">{{ object.title }}</h1>
+<h1 class="govuk-heading-l"><span id="current-title">{{ object.title }}</span></h1>
+<form action="" method="POST" id="form-title">
+  {% crispy title_form %}
+</form>
+<a href="#" id="change-title" class="govuk-link govuk-link--no-visited-state">Change</a>
 <dl class="govuk-summary-list">
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Author:</dt>
-    <dd class="govuk-summary-list__value">{% if object.author %}{{ object.author.get_full_name }} ({{ object.author.email }}){% else %}—{% endif %}</dd>
+    <dd class="govuk-summary-list__value">{% if object.author %}{{ object.author.get_full_name }}{% else %}—{% endif %}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Assignee:</dt>
     <dd class="govuk-summary-list__value">
-      <span id="current-assignee">{% if object.assignee %}{{ object.assignee.get_full_name }} ({{ object.assignee.email }}){% else %}—{% endif %}</span>
+      <span id="current-assignee">{% if object.assignee %}{{ object.assignee.get_full_name }}{% else %}—{% endif %}</span>
       {% if is_member %}
       <form action="" method="POST" id="form-assignee">
         {% crispy assignee_form %}

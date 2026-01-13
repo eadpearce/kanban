@@ -266,7 +266,16 @@ class TicketAssigneeForm(forms.ModelForm):
         fields = ("assignee",)
 
     def __init__(self, *args, **kwargs):
+        board_id = kwargs.pop("board_id")
         super().__init__(*args, **kwargs)
+
+        member_user_pks = BoardMembership.objects.filter(board_id=board_id).values_list(
+            "user__pk"
+        )
+        self.fields["assignee"].queryset = User.objects.filter(
+            pk__in=member_user_pks
+        ).order_by("last_name")
+
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
             Hidden("field_name", value="assignee"),
@@ -303,6 +312,32 @@ class TicketStatusForm(forms.ModelForm):
         self.helper.layout = layout.Layout(
             Hidden("field_name", value="status"),
             "status",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class TicketTitleForm(forms.ModelForm):
+    field_name = forms.CharField()
+    title = forms.CharField(
+        label="",
+    )
+
+    class Meta:
+        model = Ticket
+        fields = ("title",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            Hidden("field_name", value="title"),
+            "title",
             layout.Submit(
                 "submit",
                 "Save",

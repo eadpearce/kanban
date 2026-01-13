@@ -15,7 +15,8 @@ class Command(BaseCommand):
         parser.add_argument("email", nargs="?", type=str)
 
     def handle(self, *args, **options):
-        developer_user = User.objects.get(email=options["email"])
+        if options["email"]:
+            developer_user = User.objects.get(email=options["email"])
 
         test_users = factories.UserFactory.create_batch(10)
         users = ", ".join([f"{u.first_name} {u.last_name}" for u in test_users])
@@ -29,7 +30,12 @@ class Command(BaseCommand):
 
         memberships = []
 
-        for i, user in enumerate([developer_user] + test_users):
+        if options["email"]:
+            all_users = [developer_user] + test_users
+        else:
+            all_users = test_users
+
+        for i, user in enumerate(all_users):
             if user == developer_user:
                 membership = factories.BoardMembershipFactory.create(
                     board=board, user=user, is_owner=True
