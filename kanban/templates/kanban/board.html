@@ -40,14 +40,16 @@
     {% for status in statuses %}
     <div class="kanban-column">
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
-      <ul class="kanban-ticket-list" data-status="{{ status.id }}">
+      <div class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
-          <li class="kanban-ticket" draggable="true" data-id="{{ ticket.id }}">
-            <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
-            <p class="govuk-!-font-size-16">ID: {{ ticket.id }}</p>
-          </li>
+        <a class="govuk-link kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" draggable="true" data-id="{{ ticket.id }}">
+            <p class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state">{{ ticket.title }}</p>
+            <div class="govuk-!-margin-top-2">
+              <strong class="govuk-tag govuk-!-font-size-16">ID: {{ ticket.id }}</strong>
+            </div>
+        </a>
         {% endfor %}
-      </ul>
+      </div>
     </div>
     {% endfor %}
 </div>
