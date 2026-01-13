@@ -54,8 +54,10 @@
       {% for ticket in status.tickets.all %}
         <a class="govuk-link kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" {% if is_member %}draggable="true"{% endif %} data-id="{{ ticket.id }}">
             <p class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state">{{ ticket.title }}</p>
-            <div class="govuk-!-margin-top-2">
-              <strong class="govuk-tag govuk-!-font-size-16">ID: {{ ticket.id }}</strong>
+            <div class="govuk-!-margin-top-2 kanban-ticket-footer">
+              <span class="govuk-tag govuk-tag--turquoise govuk-!-font-size-16">ID: {{ ticket.id }}</span>
+              {% if ticket.assignee %}<span title="{{ ticket.assignee.get_full_name }}" class="kanban-assignee-tag govuk-tag govuk-tag--light-blue govuk-!-font-size-16">{{ ticket.assignee_initials }}</span>
+              {% else %}<span title="No assignee" class="kanban-assignee-tag govuk-tag govuk-tag--light-blue govuk-!-font-size-16">—</span>{% endif %}
             </div>
         </a>
         {% endfor %}

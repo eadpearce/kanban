@@ -42,6 +42,10 @@
   margin-bottom: 5px;
 }
 
+.kanban-ticket:hover .kanban-ticket-footer {
+  text-decoration: none;
+}
+
 .kanban-placeholder {
   border: 2px dashed #1d70b8;
   border-radius: 3px;
@@ -69,4 +73,9 @@
 
 .govuk-summary-list__key, .govuk-summary-list__actions {
   vertical-align: top;
+}
+
+.kanban-assignee-tag {
+  display: block;
+  float: right;
 }

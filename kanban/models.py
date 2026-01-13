@@ -26,11 +26,11 @@ class BoardMembership(models.Model):
     user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
     is_owner = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ["board", "user"]
-
     def __str__(self):
         return f"{self.board.name} membership {self.user.get_full_name()}"
+
+    class Meta:
+        unique_together = ["board", "user"]
 
 
 class TicketStatus(models.Model):
@@ -71,6 +71,13 @@ class Ticket(TimestampedMixin):
         null=True,
         blank=True,
     )
+
+    @property
+    def assignee_initials(self):
+        if self.assignee.first_name and self.assignee.last_name:
+            return f"{self.assignee.first_name[0].upper()} {self.assignee.last_name[0].upper()}"
+        else:
+            return f"{self.assignee.username[0].upper()}"
 
     class Meta:
         ordering = ("order",)
