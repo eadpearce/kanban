@@ -35,6 +35,40 @@ class BoardCreateForm(forms.ModelForm):
         )
 
 
+class BoardEditForm(forms.ModelForm):
+    name = forms.CharField(
+        label="Name",
+        error_messages={
+            "required": "Please enter a name",
+        },
+    )
+
+    class Meta:
+        model = Board
+        fields = ("name",)
+
+    def __init__(self, *args, **kwargs):
+        board_id = kwargs.pop("board_id")
+        super().__init__(*args, **kwargs)
+
+        back_url = reverse_lazy("board-settings", kwargs={"pk": board_id})
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML(
+                f'<a href="{back_url}" class="govuk-back-link">Back to board settings</a>'
+            ),
+            layout.HTML.h1("Edit board name"),
+            "name",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
 class TicketCreateForm(forms.ModelForm):
     title = forms.CharField(
         label="Title",
@@ -113,7 +147,10 @@ class TicketEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         ticket_id = kwargs.pop("ticket_id")
+        board_id = kwargs.pop("board_id")
         super().__init__(*args, **kwargs)
+
+        self.fields["status"].queryset = TicketStatus.objects.filter(board__id=board_id)
 
         back_url = reverse_lazy("ticket-detail", kwargs={"pk": ticket_id})
 

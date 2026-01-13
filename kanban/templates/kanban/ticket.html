@@ -24,23 +24,23 @@
 <dl class="govuk-summary-list">
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Created at:</dt>
-    <dd class="govuk-summary-list__value">{{ ticket.created_at }}</dd>
+    <dd class="govuk-summary-list__value">{{ object.created_at }}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Updated at:</dt>
-    <dd class="govuk-summary-list__value">{{ ticket.updated_at }}</dd>
+    <dd class="govuk-summary-list__value">{{ object.updated_at }}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Status:</dt>
-    <dd class="govuk-summary-list__value">{{ ticket.status.name }}</dd>
+    <dd class="govuk-summary-list__value">{{ object.status.name }}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Description:</dt>
-    <dd class="govuk-summary-list__value">{{ ticket.description }}</dd>
+    <dd class="govuk-summary-list__value">{{ object.description }}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Board:</dt>
-    <dd class="govuk-summary-list__value">{{ ticket.board }}</dd>
+    <dd class="govuk-summary-list__value">{{ object.board }}</dd>
   </div>
 </dl>
 {% endblock %}

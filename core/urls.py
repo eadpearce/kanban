@@ -33,6 +33,14 @@ urlpatterns = [
     ),
     path("boards/<int:pk>/", kanban_views.BoardView.as_view(), name="board-detail"),
     path(
+        "boards/<int:pk>/settings/",
+        kanban_views.BoardSettingsView.as_view(),
+        name="board-settings",
+    ),
+    path(
+        "boards/<int:pk>/edit/", kanban_views.EditBoardView.as_view(), name="board-edit"
+    ),
+    path(
         "boards/<int:pk>/backlog/",
         kanban_views.BacklogView.as_view(),
         name="board-backlog",

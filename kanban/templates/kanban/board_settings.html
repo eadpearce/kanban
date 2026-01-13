@@ -1,0 +1,46 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' object.pk %}">{{ object.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Board settings</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Board settings</h1>
+<dl class="govuk-summary-list">
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Name:</dt>
+    <dd class="govuk-summary-list__value">
+      {{ object.name }}
+    </dd>
+    <dd class="govuk-summary-list__actions">
+      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit' object.id %}">Change</a>
+    </dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Columns (ticket statuses):</dt>
+    <dd class="govuk-summary-list__value">
+      {% for status in object.statuses.all %}
+      {{ status.name }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    </dd>
+    <dd class="govuk-summary-list__actions">
+      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit' object.id %}">Change</a>
+    </dd>
+  </div>
+</dl>
+{% endblock %}

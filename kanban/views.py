@@ -28,8 +28,38 @@ class CreateBoardView(FormView):
         return self.get_success_url(board.id)
 
 
+class EditBoardView(UpdateView):
+    form_class = forms.BoardEditForm
+    template_name = "core/form.html"
+    queryset = Board.objects.all()
+
+    def get_success_url(self, board_id):
+        return redirect(reverse("board-detail", kwargs={"pk": board_id}))
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        self.object.name = (data["name"],)
+        self.object.save()
+        return self.get_success_url(self.object.id)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board_id"] = self.kwargs.get("pk")
+        return kwargs
+
+
 class BoardView(DetailView):
     template_name = "kanban/board.html"
+    model = Board
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["statuses"] = self.object.statuses.all().order_by("order")
+        return context
+
+
+class BoardSettingsView(DetailView):
+    template_name = "kanban/board_settings.html"
     model = Board
 
     def get_context_data(self, **kwargs):
@@ -100,6 +130,7 @@ class EditTicketView(UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["ticket_id"] = self.object.id
+        kwargs["board_id"] = self.object.board.id
         return kwargs
 
 
