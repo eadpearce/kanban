@@ -23,18 +23,38 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="govuk-heading-l">Edit columns</h1>
+<h1 class="govuk-heading-l">Manage columns</h1>
 <p class="govuk-body">
   <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'status-create' object.pk %}">Add a new column</a>
 </p>
 <p class="govuk-body">Drag and drop to reorder</p>
-<ul class="govuk-list" id="board-columns">
-  {% for status in object.statuses.all %}
-  <li class="kanban-status kanban-ticket" draggable="true" data-id="{{ status.id }}">
-    <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="#">{{ status.name }}</a>
-  </li>
-  {% endfor %}
-</ul>
+<form action="" method="POST">
+  {% csrf_token %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+      <div class="govuk-form-group">
+        <div class="govuk-checkboxes govuk-checkboxes--small govuk-list" id="board-columns">
+          {% for status in object.statuses.all %}
+          <div class="govuk-checkboxes__item kanban-status" draggable="true" data-id="{{ status.id }}">
+            <input class="govuk-checkboxes__input" type="checkbox" name="selected_status" value="{{ status.id }}">
+            <label class="govuk-label govuk-checkboxes__label">{{ status.name }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="govuk-grid-column-one-quarter">
+      <div class="govuk-form-group">
+        <label for="form-action" class="govuk-label">Action</label>
+        <select name="form-action" class="govuk-select">
+          <option value="">Select an action</option>
+          <option value="delete">Delete</option>
+        </select>
+      </div>
+      <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button">
+    </div>
+  </div>
+</form>
 
 
 <script>
@@ -55,7 +75,7 @@
 
   function updateColumn(column) {
     const statuses = [];
-    column.querySelectorAll(".kanban-ticket").forEach((status, index) => {
+    column.querySelectorAll(".kanban-status").forEach((status, index) => {
       statuses.push({
         id: status.dataset.id,
         order: index,
@@ -64,7 +84,7 @@
     updateBoardColumnsOrder(column, statuses);
   }
 
-  const tickets = document.querySelectorAll(".kanban-ticket");
+  const tickets = document.querySelectorAll(".kanban-status");
 
   tickets.forEach(ticket => {
     ticket.addEventListener("dragstart", (e) => {

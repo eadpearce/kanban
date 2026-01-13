@@ -1,5 +1,5 @@
 import json
-
+from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import DetailView, View, FormView, ListView, UpdateView
@@ -76,6 +76,23 @@ class BoardEditColumnsView(DetailView):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
         return context
+
+    def post(self, request, *args, **kwargs):
+        selected_statuses = request.POST.getlist("selected_status")
+        action = request.POST.get("form-action")
+        if action == "delete":
+            statuses = TicketStatus.objects.filter(id__in=selected_statuses)
+            column_names = ", ".join([f"“{status.name}”" for status in statuses])
+            tickets = Ticket.objects.filter(status__id__in=statuses)
+            tickets.update(status=None)
+            for ticket in tickets:
+                ticket.save()
+            statuses.delete()
+            messages.success(
+                request,
+                f"Column(s) {column_names} deleted. Any associated tickets have been moved to the backlog",
+            )
+        return self.get(request)
 
 
 class BacklogView(ListView):

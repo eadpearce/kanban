@@ -50,9 +50,19 @@
 .kanban-status {
   border: 1px solid #eaebec;
   border-radius: 3px;
-  padding: 5px;
+  background-color: white;
+  box-shadow: 1px 1px 2px #eaebec;
+  margin-bottom: 5px !important;
 }
 
-.kanban-ticket input {
-  margin-right: 10px;
+.govuk-checkboxes--small .kanban-status label.govuk-checkboxes__label:before {
+  left: 10px;
+}
+
+.govuk-checkboxes--small .kanban-status label.govuk-checkboxes__label:after {
+  left: 16px;
+}
+
+.govuk-checkboxes--small .kanban-status .govuk-checkboxes__input {
+  margin-left: 0;
 }

@@ -56,7 +56,39 @@
   <div class="{% block container_class_override %}govuk-width-container{% endblock %}">
     {% block breadcrumbs %}{% endblock %}
     <main class="{% block main_class_override %}govuk-main-wrapper{% endblock %}" id="main-content">
-      {% block content %}{% endblock %}
+      {% block system_messages %}
+        {% for message in messages %}
+          {% if message.tags == 'error' %}
+            <div class="govuk-notification-banner" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+              <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                  There is a problem
+                </h2>
+              </div>
+              <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                  {{ message }}
+                </p>
+              </div>
+            </div>
+          {% endif %}
+          {% if message.tags == 'success' %}
+            <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+              <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                  Success
+                </h2>
+              </div>
+              <div class="govuk-notification-banner__content">
+                <p style="max-width: none;" class="govuk-notification-banner__heading">
+                  {{ message }}
+                </p>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endblock %}
+    {% block content %}{% endblock %}
     </main>
   </div>
   <footer class="govuk-footer">
