@@ -101,12 +101,38 @@ class BacklogView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(board__id=self.kwargs["pk"])
+        return queryset.filter(board__id=self.kwargs["pk"], status__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["board"] = Board.objects.get(pk=self.kwargs["pk"])
+        board = Board.objects.get(pk=self.kwargs["pk"])
+        context["board"] = board
+        context["statuses"] = board.statuses.all().order_by("order")
         return context
+
+    def post(self, request, *args, **kwargs):
+        selected_tickets = request.POST.getlist("selected_tickets")
+        action = request.POST.get("form-action")
+        tickets = Ticket.objects.filter(id__in=selected_tickets)
+        ticket_titles = ", ".join([f"“{ticket.title}”" for ticket in tickets])
+
+        if action == "delete":
+            tickets.delete()
+            messages.success(
+                request,
+                f"Ticket(s) {ticket_titles} deleted",
+            )
+        elif action == "update-status":
+            status_id = request.POST.get("status")
+            status = TicketStatus.objects.get(id=status_id)
+            for ticket in tickets:
+                ticket.status = status
+                ticket.save()
+            messages.success(
+                request,
+                f"Ticket(s) {ticket_titles} moved to “{status.name}”",
+            )
+        return self.get(request)
 
 
 class TicketView(DetailView):
