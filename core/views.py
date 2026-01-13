@@ -8,5 +8,6 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["boards"] = Board.objects.all()
+        context["all_boards"] = Board.objects.all()
+        context["your_boards"] = Board.objects.filter(members__user=self.request.user)
         return context

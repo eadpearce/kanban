@@ -5,11 +5,19 @@
 {% block content %}
 <h1 class="govuk-heading-xl">Home</h1>
 <p><a href="{% url 'board-create' %}" class="govuk-link govuk-link--no-visited-state">Create a new board</a></p>
-<h2 class="govuk-heading-l">Boards</h2>
+<h2 class="govuk-heading-l">Your boards</h2>
 <ul class="govuk-list">
-  {% for board in boards %}
+  {% for board in your_boards %}
   <li>
-      <a href="{% url 'board-detail' board.id %}">{{ board.name }}</a>
+      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-detail' board.id %}">{{ board.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
+<h2 class="govuk-heading-l">All boards</h2>
+<ul class="govuk-list">
+  {% for board in all_boards %}
+  <li>
+      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-detail' board.id %}">{{ board.name }}</a>
   </li>
   {% endfor %}
 </ul>
