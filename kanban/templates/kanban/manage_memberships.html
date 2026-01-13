@@ -1,0 +1,99 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' board.pk %}">{{ board.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-settings' board.pk %}">Board settings</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Manage members</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Members of {{ board.name }}</h1>
+<form action="" method="POST">
+  {% csrf_token %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+      <div class="govuk-form-group">
+        <div class="govuk-checkboxes govuk-checkboxes--small govuk-list" id="board-columns">
+          {% for membership in object_list %}
+          <div class="govuk-checkboxes__item kanban-status">
+            <input class="govuk-checkboxes__input" type="checkbox" name="selected_members" value="{{ membership.id }}">
+            <label class="govuk-label govuk-checkboxes__label">{{ membership.user.get_full_name }}</label>
+            {% if membership.is_owner %}<div class="kanban-status-tag"><span class="govuk-tag govuk-tag--turquoise govuk-!-font-size-16">Owner</span></div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="govuk-grid-column-one-quarter">
+      <div class="govuk-form-group">
+        <label for="form-action" class="govuk-label">Action</label>
+        <select name="form-action" id="form-action" class="govuk-select">
+          <option value="">Select an action</option>
+          <option value="remove">Remove</option>
+          <option value="make-owner">Make owner</option>
+        </select>
+      </div>
+      <input id="submit-button" type="submit" value="Submit" class="govuk-button" data-module="govuk-button">
+    </div>
+  </div>
+</form>
+
+<script>
+  const inputs = document.querySelectorAll(".govuk-checkboxes__input");
+  const inputValues = [];
+
+  
+  inputs.forEach(input => {
+    if (input.checked) {
+      inputValues.push(input.value);
+    }
+    input.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        inputValues.push(e.target.value);
+      } else {
+        const index = inputValues.indexOf(e.target.value);
+        inputValues.splice(index, 1);
+      }
+      if (inputValues.length == 0) {
+        button.setAttribute("disabled", true);
+      } else {
+        button.removeAttribute("disabled");
+      }
+    });
+  });
+
+  const button = document.getElementById("submit-button");
+
+  if (inputValues.length == 0) {
+    button.setAttribute("disabled", true);
+  }
+
+  const statusSelector = document.getElementById("status-select");
+  statusSelector.style = "visibility: hidden;"
+
+  const actionSelector = document.getElementById("form-action");
+  actionSelector.addEventListener("change", (e) => {
+    if (e.target.value === "update-status") {
+      statusSelector.style = "visibility: visible;"
+    } else {
+      statusSelector.style = "visibility: hidden;"
+    }
+  });
+</script>
+
+{% endblock %}

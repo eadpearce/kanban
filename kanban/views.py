@@ -87,6 +87,16 @@ class BoardSettingsView(DetailView):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
         context["owner"] = self.object.members.filter(is_owner=True).first().user
+        is_member = BoardMembership.objects.filter(
+            board=self.object, user=self.request.user
+        ).exists()
+        context["is_member"] = is_member
+        if is_member:
+            context["is_owner"] = BoardMembership.objects.get(
+                board=self.object, user=self.request.user
+            ).is_owner
+        else:
+            context["is_owner"] = False
         return context
 
 
@@ -116,6 +126,72 @@ class BoardEditColumnsView(DetailView):
             )
         board = Board.objects.get(pk=self.kwargs["pk"])
         return redirect(reverse("board-edit-columns", kwargs={"pk": board.pk}))
+
+
+class ManageMembershipsView(ListView):
+    template_name = "kanban/manage_memberships.html"
+    model = BoardMembership
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(board__id=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        board = Board.objects.get(pk=self.kwargs["pk"])
+        context["board"] = board
+        context["statuses"] = board.statuses.all().order_by("order")
+        is_member = BoardMembership.objects.filter(
+            board=board, user=self.request.user
+        ).exists()
+        context["is_member"] = is_member
+        if is_member:
+            context["is_owner"] = BoardMembership.objects.get(
+                board=board, user=self.request.user
+            ).is_owner
+        else:
+            context["is_owner"] = False
+        return context
+
+    def post(self, request, *args, **kwargs):
+        selected_members = request.POST.getlist("selected_members")
+        action = request.POST.get("form-action")
+        members = BoardMembership.objects.filter(id__in=selected_members)
+        member_names = ", ".join([m.user.get_full_name() for m in members])
+
+        if action == "remove":
+            members.delete()
+            if len(selected_members) > 1:
+                success_message = (
+                    f"Members {member_names} have been removed from this board"
+                )
+            else:
+                success_message = (
+                    f"Member {member_names} has been removed from this board"
+                )
+            messages.success(
+                request,
+                success_message,
+            )
+        elif action == "make-owner":
+            for member in members:
+                member.is_owner = True
+                member.save()
+            if len(members) > 1:
+                success_message = (
+                    f"Members {member_names} have been made owners of this board"
+                )
+            else:
+                success_message = (
+                    f"Member {member_names} has been made an owner of this board"
+                )
+            messages.success(
+                request,
+                success_message,
+            )
+        return redirect(
+            reverse("board-manage-memberships", kwargs={"pk": self.kwargs["pk"]})
+        )
 
 
 class BacklogView(ListView):

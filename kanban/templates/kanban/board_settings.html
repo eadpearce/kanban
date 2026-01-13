@@ -56,7 +56,7 @@
       {% endfor %}
     </dd>
     <dd class="govuk-summary-list__actions">
-      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit-columns' object.id %}">Manage memberships</a>
+      {% if is_owner %}<a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-manage-memberships' object.id %}">Manage memberships</a>{% endif %}
     </dd>
   </div>
 </dl>

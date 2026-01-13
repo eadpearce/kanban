@@ -59,6 +59,11 @@
   margin-bottom: 5px !important;
 }
 
+.kanban-status-tag {
+  display: flex;
+  align-items: center;
+}
+
 .govuk-checkboxes--small .kanban-status label.govuk-checkboxes__label:before {
   left: 10px;
 }

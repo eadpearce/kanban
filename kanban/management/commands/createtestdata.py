@@ -1,14 +1,21 @@
 import random
 
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from kanban import factories
+
+User = get_user_model()
 
 
 class Command(BaseCommand):
     help = "Create a given number of kanban boards and all related objects"
 
+    def add_arguments(self, parser):
+        parser.add_argument("email", nargs="?", type=str)
+
     def handle(self, *args, **options):
+        developer_user = User.objects.get(email=options["email"])
 
         test_users = factories.UserFactory.create_batch(10)
         users = ", ".join([f"{u.first_name} {u.last_name}" for u in test_users])
@@ -22,8 +29,8 @@ class Command(BaseCommand):
 
         memberships = []
 
-        for i, user in enumerate(test_users):
-            if i == 0:
+        for i, user in enumerate([developer_user] + test_users):
+            if user == developer_user:
                 membership = factories.BoardMembershipFactory.create(
                     board=board, user=user, is_owner=True
                 )
