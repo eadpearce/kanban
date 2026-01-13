@@ -20,8 +20,9 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">Backlog for {{ board.name }}</h1>
+{% if not is_member %}{% endif %}
 {% if not object_list %}
-<p class="govuk-body">There's nothing in the backlog. <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}">Create a ticket</a></p>
+<p class="govuk-body">There's nothing in the backlog. {% if is_member %}<a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}">Create a ticket</a>{% endif %}</p>
 {% else %}
 <p class="govuk-body">These tickets have not yet been assigned a status.</p>
 <form action="" method="POST">

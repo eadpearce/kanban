@@ -59,6 +59,16 @@ class BoardView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
+        is_member = BoardMembership.objects.filter(
+            board=self.object, user=self.request.user
+        ).exists()
+        context["is_member"] = is_member
+        if is_member:
+            context["is_owner"] = BoardMembership.objects.get(
+                board=self.object, user=self.request.user
+            ).is_owner
+        else:
+            context["is_owner"] = False
         return context
 
 
@@ -113,6 +123,9 @@ class BacklogView(ListView):
         board = Board.objects.get(pk=self.kwargs["pk"])
         context["board"] = board
         context["statuses"] = board.statuses.all().order_by("order")
+        context["is_member"] = BoardMembership.objects.filter(
+            board=board, user=self.request.user
+        ).exists()
         return context
 
     def post(self, request, *args, **kwargs):

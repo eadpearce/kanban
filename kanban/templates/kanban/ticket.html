@@ -21,7 +21,9 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">{{ object.title }}</h1>
+{% if is_member %}
 <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-edit' object.id %}">Edit this ticket</a>
+{% endif %}
 <dl class="govuk-summary-list">
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Author:</dt>
@@ -31,11 +33,15 @@
     <dt class="govuk-summary-list__key">Assignee:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-assignee">{% if object.assignee %}{{ object.assignee.get_full_name }} ({{ object.assignee.email }}){% else %}—{% endif %}</span>
+      {% if is_member %}
       <form action="" method="POST" id="form-assignee">
         {% crispy assignee_form %}
       </form>
+      {% endif %}
     </dd>
+    {% if is_member %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-assignee" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
+    {% endif %}
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Created at:</dt>
@@ -49,21 +55,29 @@
     <dt class="govuk-summary-list__key">Status:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-status">{{ object.status.name }}</span>
+      {% if is_member %}
       <form action="" method="POST" id="form-status">
         {% crispy status_form %}
       </form>
+      {% endif %}
     </dd>
+    {% if is_member %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-status" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
+    {% endif %}
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Description:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-description">{{ object.description }}</span>
+      {% if is_member %}
       <form action="" method="POST" id="form-description">
         {% crispy description_form %}
       </form>
+      {% endif %}
     </dd>
+    {% if is_member %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-description" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
+    {% endif %}
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Board:</dt>
@@ -71,6 +85,7 @@
   </div>
 </dl>
 
+{% if is_member %}
 <script>
   const fields = {{ fields|safe }};
 
@@ -102,4 +117,6 @@
     changeLink.addEventListener("click", showForm);
   });
 </script>
+{% endif %}
+
 {% endblock %}

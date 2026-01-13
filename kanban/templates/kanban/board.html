@@ -20,17 +20,24 @@
 
 {% block content %}
 <h1 class="govuk-heading-m">{{ object.name }}</h1>
+{% if not is_member %}
+<p class="govuk-body">You are not a member of this board.</p>
+{% endif %}
 {% if object.tickets.all %}
 <ul>
+  {% if is_member %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">Create a ticket</a>
   </li>
+  {% endif %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-backlog' object.pk %}">View the backlog</a>
   </li>
+  {% if is_owner %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-settings' object.pk %}">Board settings</a>
   </li>
+  {% endif %}
 </ul>
 {% else %}
 <p class="govuk-body">This is your new board. To get started <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">create a ticket</a>.</p>
@@ -45,7 +52,7 @@
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
       <div class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
-        <a class="govuk-link kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" draggable="true" data-id="{{ ticket.id }}">
+        <a class="govuk-link kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" {% if is_member %}draggable="true"{% endif %} data-id="{{ ticket.id }}">
             <p class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state">{{ ticket.title }}</p>
             <div class="govuk-!-margin-top-2">
               <strong class="govuk-tag govuk-!-font-size-16">ID: {{ ticket.id }}</strong>
@@ -57,6 +64,7 @@
     {% endfor %}
 </div>
 
+{% if is_member %}
 <script>
   function updateTicket(ticket, column, order) {
     fetch("/ajax/tickets/update-status/", {
@@ -182,4 +190,6 @@
     column.append(existingPlaceholder ?? makePlaceholder(draggedTicket));
   }
 </script>
+{% endif %}
+
 {% endblock %}
