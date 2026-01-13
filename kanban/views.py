@@ -2,7 +2,7 @@ import json
 
 from django.urls import reverse
 from django.shortcuts import redirect
-from django.views.generic import DetailView, View, FormView, ListView
+from django.views.generic import DetailView, View, FormView, ListView, UpdateView
 from django.http import JsonResponse
 from kanban.models import Board, Ticket, TicketStatus
 from kanban import forms
@@ -57,6 +57,27 @@ class CreateTicketView(FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["board_id"] = self.kwargs.get("pk")
+        return kwargs
+
+
+class EditTicketView(UpdateView):
+    form_class = forms.TicketEditForm
+    template_name = "core/form.html"
+    queryset = Ticket.objects.all()
+
+    def get_success_url(self, board_id):
+        return redirect(reverse("ticket-detail", kwargs={"pk": self.object.id}))
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        self.object.title = data["title"]
+        self.object.description = data["description"]
+        self.object.save()
+        return self.get_success_url(self.object.board.id)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["ticket_id"] = self.object.id
         return kwargs
 
 

@@ -2,17 +2,45 @@
 
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' object.board.pk %}">{{ object.board.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Ticket</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
-<a href="{% url 'board-detail' ticket.board.id %}">Back to board</a>
-<h1>{{ object.title }}</h1>
-<dl>
-  <dt>Created at:</dt>
-  <dd>{{ ticket.created_at }}</dd>
-  <dt>Updated at:</dt>
-  <dd>{{ ticket.updated_at }}</dd>
-  <dt>Status:</dt>
-  <dd>{{ ticket.status.name }}</dd>
-  <dt>Description:</dt>
-  <dd>{{ ticket.description }}</dd>
+<h1 class="govuk-heading-l">{{ object.title }}</h1>
+<a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-edit' object.id %}">Edit this ticket</a>
+<dl class="govuk-summary-list">
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Created at:</dt>
+    <dd class="govuk-summary-list__value">{{ ticket.created_at }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Updated at:</dt>
+    <dd class="govuk-summary-list__value">{{ ticket.updated_at }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Status:</dt>
+    <dd class="govuk-summary-list__value">{{ ticket.status.name }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Description:</dt>
+    <dd class="govuk-summary-list__value">{{ ticket.description }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Board:</dt>
+    <dd class="govuk-summary-list__value">{{ ticket.board }}</dd>
+  </div>
 </dl>
 {% endblock %}

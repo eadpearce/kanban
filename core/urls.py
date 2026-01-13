@@ -38,6 +38,11 @@ urlpatterns = [
     ),
     path("tickets/<int:pk>/", kanban_views.TicketView.as_view(), name="ticket-detail"),
     path(
+        "tickets/<int:pk>/edit/",
+        kanban_views.EditTicketView.as_view(),
+        name="ticket-edit",
+    ),
+    path(
         "ajax/tickets/update-status/",
         kanban_views.UpdateTicketStatusAJAXView.as_view(),
         name="ajax-ticket-update-status",
