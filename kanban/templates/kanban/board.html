@@ -34,6 +34,9 @@
 </ul>
 {% else %}
 <p class="govuk-body">This is your new board. To get started <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">create a ticket</a>.</p>
+<p class="govuk-body">
+  <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-settings' object.pk %}">Board settings</a>
+</p>
 {% endif %}
 
 <div class="kanban-container">

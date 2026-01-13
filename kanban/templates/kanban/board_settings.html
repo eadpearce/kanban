@@ -42,5 +42,22 @@
       <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit-columns' object.id %}">Manage columns</a>
     </dd>
   </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Board owner:</dt>
+    <dd class="govuk-summary-list__value">
+      {{ owner.get_full_name }}
+    </dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Members:</dt>
+    <dd class="govuk-summary-list__value">
+      {% for membership in object.members.all %}
+      {{ membership.user.get_full_name }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    </dd>
+    <dd class="govuk-summary-list__actions">
+      <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit-columns' object.id %}">Manage memberships</a>
+    </dd>
+  </div>
 </dl>
 {% endblock %}

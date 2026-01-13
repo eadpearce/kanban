@@ -24,7 +24,7 @@ class BoardFactory(factory.django.DjangoModelFactory):
 
 class BoardMembershipFactory(factory.django.DjangoModelFactory):
     board = factory.SubFactory(BoardFactory)
-    member = factory.SubFactory(UserFactory)
+    user = factory.SubFactory(UserFactory)
 
     class Meta:
         model = models.BoardMembership

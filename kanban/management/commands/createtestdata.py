@@ -21,10 +21,16 @@ class Command(BaseCommand):
         statuses = [todo, in_progress, done]
 
         memberships = []
-        for user in test_users:
-            membership = factories.BoardMembershipFactory.create(
-                board=board, member=user
-            )
+
+        for i, user in enumerate(test_users):
+            if i == 0:
+                membership = factories.BoardMembershipFactory.create(
+                    board=board, user=user, is_owner=True
+                )
+            else:
+                membership = factories.BoardMembershipFactory.create(
+                    board=board, user=user
+                )
             memberships.append(membership)
 
             tickets = factories.TicketFactory.create_batch(
@@ -36,7 +42,7 @@ class Command(BaseCommand):
             )
 
         created_memberships = ", ".join(
-            [f"{m.member.first_name} {m.member.last_name}" for m in memberships]
+            [f"{m.user.first_name} {m.user.last_name}" for m in memberships]
         )
         self.stdout.write(
             self.style.SUCCESS(f"Created memberships: {created_memberships}")

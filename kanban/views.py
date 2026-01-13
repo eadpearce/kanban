@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import DetailView, View, FormView, ListView, UpdateView
 from django.http import JsonResponse
-from kanban.models import Board, Ticket, TicketStatus, User
+from kanban.models import Board, BoardMembership, Ticket, TicketStatus, User
 from kanban import forms
 from kanban.constants import BasicStatuses
 
@@ -25,6 +25,10 @@ class CreateBoardView(FormView):
         for i, name in enumerate(BasicStatuses.values):
             TicketStatus.objects.create(name=name, board=board, order=i)
 
+        BoardMembership.objects.create(
+            board=board, user=self.request.user, is_owner=True
+        )
+
         return self.get_success_url(board.id)
 
 
@@ -38,7 +42,7 @@ class EditBoardView(UpdateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        self.object.name = (data["name"],)
+        self.object.name = data["name"]
         self.object.save()
         return self.get_success_url(self.object.id)
 
@@ -65,6 +69,7 @@ class BoardSettingsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
+        context["owner"] = self.object.members.filter(is_owner=True).first().user
         return context
 
 

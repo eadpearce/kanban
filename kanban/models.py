@@ -23,9 +23,14 @@ class Board(TimestampedMixin):
 
 class BoardMembership(models.Model):
     board = models.ForeignKey(Board, related_name="members", on_delete=models.CASCADE)
-    member = models.ForeignKey(
-        User, related_name="memberships", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
+    is_owner = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ["board", "user"]
+
+    def __str__(self):
+        return f"{self.board.name} membership {self.user.get_full_name()}"
 
 
 class TicketStatus(models.Model):
