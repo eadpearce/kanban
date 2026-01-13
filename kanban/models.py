@@ -21,6 +21,13 @@ class Board(TimestampedMixin):
         return self.name
 
 
+class BoardMembership(models.Model):
+    board = models.ForeignKey(Board, related_name="members", on_delete=models.CASCADE)
+    member = models.ForeignKey(
+        User, related_name="memberships", on_delete=models.CASCADE
+    )
+
+
 class TicketStatus(models.Model):
     name = models.CharField(max_length=100)
     board = models.ForeignKey(Board, related_name="statuses", on_delete=models.CASCADE)
