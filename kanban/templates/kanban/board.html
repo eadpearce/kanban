@@ -40,10 +40,14 @@
   {% endif %}
 </ul>
 {% else %}
+{% if is_member %}
 <p class="govuk-body">This is your new board. To get started <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">create a ticket</a>.</p>
+{% endif %}
+{% if is_owner %}
 <p class="govuk-body">
   <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-settings' object.pk %}">Board settings</a>
 </p>
+{% endif %}
 {% endif %}
 
 <div class="kanban-container">
@@ -52,7 +56,7 @@
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
       <div class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
-        <a class="govuk-link kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" {% if is_member %}draggable="true"{% endif %} data-id="{{ ticket.id }}">
+        <a class="govuk-link govuk-link--no-visited-state kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" {% if is_member %}draggable="true"{% endif %} data-id="{{ ticket.id }}">
             <p class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state">{{ ticket.title }}</p>
             <div class="govuk-!-margin-top-2 kanban-ticket-footer">
               <span class="govuk-tag govuk-tag--turquoise govuk-!-font-size-16">ID: {{ ticket.id }}</span>
