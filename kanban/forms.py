@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 
-from kanban.models import Ticket, Board
+from kanban.models import Ticket, Board, TicketStatus
 
 
 class TicketCreateForm(forms.ModelForm):
@@ -20,6 +20,12 @@ class TicketCreateForm(forms.ModelForm):
         error_messages={
             "required": "Please enter a description",
         },
+    )
+    status = forms.ModelChoiceField(
+        label="Status",
+        queryset=TicketStatus.objects.all(),
+        required=False,
+        help_text="Tickets with no assigned status will be added to the backlog",
     )
 
     class Meta:
@@ -40,6 +46,7 @@ class TicketCreateForm(forms.ModelForm):
             layout.HTML.h1("Create a new ticket"),
             "title",
             "description",
+            "status",
             layout.Submit(
                 "submit",
                 "Create",
@@ -63,6 +70,12 @@ class TicketEditForm(forms.ModelForm):
             "required": "Please enter a description",
         },
     )
+    status = forms.ModelChoiceField(
+        label="Status",
+        queryset=TicketStatus.objects.all(),
+        required=False,
+        help_text="Tickets with no assigned status can be found in the backlog",
+    )
 
     class Meta:
         model = Ticket
@@ -79,9 +92,10 @@ class TicketEditForm(forms.ModelForm):
             layout.HTML(
                 f'<a href="{back_url}" class="govuk-back-link">Back to ticket</a>'
             ),
-            layout.HTML.h1("Create a new ticket"),
+            layout.HTML.h1("Edit ticket"),
             "title",
             "description",
+            "status",
             layout.Submit(
                 "submit",
                 "Save",

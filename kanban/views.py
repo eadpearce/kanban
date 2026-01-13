@@ -65,15 +65,16 @@ class EditTicketView(UpdateView):
     template_name = "core/form.html"
     queryset = Ticket.objects.all()
 
-    def get_success_url(self, board_id):
+    def get_success_url(self):
         return redirect(reverse("ticket-detail", kwargs={"pk": self.object.id}))
 
     def form_valid(self, form):
         data = form.cleaned_data
         self.object.title = data["title"]
         self.object.description = data["description"]
+        self.object.status = data["status"]
         self.object.save()
-        return self.get_success_url(self.object.board.id)
+        return self.get_success_url()
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
