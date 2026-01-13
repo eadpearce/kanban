@@ -24,6 +24,9 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">Edit columns</h1>
+<p class="govuk-body">
+  <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'status-create' object.pk %}">Add a new column</a>
+</p>
 <p class="govuk-body">Drag and drop to reorder</p>
 <ul class="govuk-list" id="board-columns">
   {% for status in object.statuses.all %}

@@ -69,6 +69,40 @@ class BoardEditForm(forms.ModelForm):
         )
 
 
+class StatusCreateForm(forms.ModelForm):
+    name = forms.CharField(
+        label="Name",
+        error_messages={
+            "required": "Please enter a name",
+        },
+    )
+
+    class Meta:
+        model = TicketStatus
+        fields = ("name",)
+
+    def __init__(self, *args, **kwargs):
+        board_id = kwargs.pop("board_id")
+        super().__init__(*args, **kwargs)
+
+        back_url = reverse_lazy("board-edit-columns", kwargs={"pk": board_id})
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML(
+                f'<a href="{back_url}" class="govuk-back-link">Back to board columns</a>'
+            ),
+            layout.HTML.h1("Create a new column"),
+            "name",
+            layout.Submit(
+                "submit",
+                "Create",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
 class TicketCreateForm(forms.ModelForm):
     title = forms.CharField(
         label="Title",

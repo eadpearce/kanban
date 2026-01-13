@@ -121,6 +121,28 @@ class CreateTicketView(FormView):
         return kwargs
 
 
+class CreateStatusView(FormView):
+    form_class = forms.StatusCreateForm
+    template_name = "core/form.html"
+
+    def get_success_url(self, board_id):
+        return redirect(reverse("board-edit-columns", kwargs={"pk": board_id}))
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        board = Board.objects.get(pk=self.kwargs.get("pk"))
+        TicketStatus.objects.create(
+            name=data["name"],
+            board=board,
+        )
+        return self.get_success_url(board.id)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board_id"] = self.kwargs.get("pk")
+        return kwargs
+
+
 class EditTicketView(UpdateView):
     form_class = forms.TicketEditForm
     template_name = "core/form.html"
