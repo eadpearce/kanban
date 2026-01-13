@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
+from crispy_forms_gds.layout import Hidden
 
 from kanban.models import Ticket, Board, TicketStatus, User
 
@@ -214,6 +215,7 @@ class UserChoiceField(forms.ModelChoiceField):
 
 
 class TicketAssigneeForm(forms.ModelForm):
+    field_name = forms.CharField()
     assignee = UserChoiceField(
         label="",
         queryset=User.objects.all(),
@@ -228,6 +230,7 @@ class TicketAssigneeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
+            Hidden("field_name", value="assignee"),
             "assignee",
             layout.Submit(
                 "submit",
@@ -239,6 +242,7 @@ class TicketAssigneeForm(forms.ModelForm):
 
 
 class TicketStatusForm(forms.ModelForm):
+    field_name = forms.CharField()
     status = forms.ModelChoiceField(
         label="",
         queryset=TicketStatus.objects.all(),
@@ -258,6 +262,7 @@ class TicketStatusForm(forms.ModelForm):
         self.fields["status"].initial = status_initial
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
+            Hidden("field_name", value="status"),
             "status",
             layout.Submit(
                 "submit",
@@ -269,6 +274,7 @@ class TicketStatusForm(forms.ModelForm):
 
 
 class TicketDescriptionForm(forms.ModelForm):
+    field_name = forms.CharField()
     description = forms.CharField(
         label="",
         widget=forms.Textarea(),
@@ -283,6 +289,7 @@ class TicketDescriptionForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
+            Hidden("field_name", value="description"),
             "description",
             layout.Submit(
                 "submit",

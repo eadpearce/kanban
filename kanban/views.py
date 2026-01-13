@@ -2,7 +2,14 @@ import json
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
-from django.views.generic import DetailView, View, FormView, ListView, UpdateView
+from django.views.generic import (
+    DetailView,
+    View,
+    FormView,
+    ListView,
+    UpdateView,
+    TemplateView,
+)
 from django.http import JsonResponse
 from kanban.models import Board, BoardMembership, Ticket, TicketStatus, User
 from kanban import forms
@@ -107,7 +114,8 @@ class BoardEditColumnsView(DetailView):
                 request,
                 f"Column(s) {column_names} deleted. Any associated tickets have been moved to the backlog",
             )
-        return self.get(request)
+        board = Board.objects.get(pk=self.kwargs["pk"])
+        return redirect(reverse("board-edit-columns", kwargs={"pk": board.pk}))
 
 
 class BacklogView(ListView):
@@ -153,28 +161,66 @@ class BacklogView(ListView):
         return self.get(request)
 
 
-class TicketView(UpdateView):
+class TicketView(TemplateView):
     template_name = "kanban/ticket.html"
-    model = Ticket
-    fields = ("assignee", "status", "description")
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        self.object.assignee = data["assignee"]
-        self.object.save()
-        return redirect(reverse("ticket-detail", kwargs={"pk": self.kwargs["pk"]}))
+    FORM_MAPPING = {
+        "assignee": forms.TicketAssigneeForm,
+        "status": forms.TicketStatusForm,
+        "description": forms.TicketDescriptionForm,
+    }
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def post(self, request, *args, **kwargs):
+        data = request.POST
+        obj = Ticket.objects.get(pk=self.kwargs["pk"])
+
+        if data["field_name"] == "assignee":
+            form = forms.TicketAssigneeForm(data=data, instance=obj)
+            if not form.is_valid():
+                return self.form_invalid(form)
+            obj.assignee = User.objects.get(id=data["assignee"])
+
+        if data["field_name"] == "status":
+            form = forms.TicketStatusForm(
+                data=data,
+                instance=obj,
+                board_id=obj.board.id,
+                status_initial=obj.status,
+            )
+            if not form.is_valid():
+                return self.form_invalid(form)
+            obj.status = TicketStatus.objects.get(id=data["status"])
+
+        if data["field_name"] == "description":
+            form = forms.TicketDescriptionForm(instance=obj, data=data)
+            if not form.is_valid():
+                return self.form_invalid(form)
+            obj.description = data["description"]
+
+        obj.save()
+        print(obj.__dict__)
+        return redirect(reverse("ticket-detail", kwargs={"pk": obj.pk}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        obj = Ticket.objects.get(pk=self.kwargs["pk"])
+        context["object"] = obj
         context["users"] = User.objects.all()
-        context["assignee_form"] = forms.TicketAssigneeForm(instance=self.object)
+        context["assignee_form"] = forms.TicketAssigneeForm(instance=obj)
         context["status_form"] = forms.TicketStatusForm(
-            instance=self.object,
-            board_id=self.object.board.id,
-            status_initial=self.object.status,
+            instance=obj,
+            board_id=obj.board.id,
+            status_initial=obj.status,
         )
-        context["description_form"] = forms.TicketDescriptionForm(instance=self.object)
-        context["fields"] = json.dumps(self.fields)
+        context["description_form"] = forms.TicketDescriptionForm(instance=obj)
+        context["fields"] = json.dumps(["assignee", "status", "description"])
+        is_member = BoardMembership.objects.filter(
+            board=obj.board, user=self.request.user
+        ).exists()
+        context["is_member"] = is_member
         return context
 
 
