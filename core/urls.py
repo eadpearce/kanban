@@ -31,6 +31,11 @@ urlpatterns = [
         name="create-ticket",
     ),
     path("boards/<int:pk>/", kanban_views.BoardView.as_view(), name="board-detail"),
+    path(
+        "boards/<int:pk>/backlog/",
+        kanban_views.BacklogView.as_view(),
+        name="board-backlog",
+    ),
     path("tickets/<int:pk>/", kanban_views.TicketView.as_view(), name="ticket-detail"),
     path(
         "ajax/tickets/update-status/",

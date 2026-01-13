@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' board.pk %}">{{ board.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Backlog</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Backlog for {{ board.name }}</h1>
+<p class="govuk-body">These tickets have not yet been assigned a status.</p>
+<ul class="kanban-backlog-ticket-list">
+  {% for ticket in object_list %}
+  <li class="kanban-backlog-ticket" draggable="true" data-id="{{ ticket.id }}">
+    <span class="govuk-!-font-size-16">ID: {{ ticket.id }}</span>
+    <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

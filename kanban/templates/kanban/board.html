@@ -2,10 +2,10 @@
 
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
-{% block container_class_override %}govuk-!-padding-2{% endblock %}
+{% block container_class_override %}govuk-!-padding-right-2 govuk-!-padding-left-2{% endblock %}
 {% block main_class_override %}{% endblock %}
 
-{% block content %}
+{% block breadcrumbs %}
 <nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
   <ol class="govuk-breadcrumbs__list">
     <li class="govuk-breadcrumbs__list-item">
@@ -16,9 +16,18 @@
     </li>
   </ol>
 </nav>
+{% endblock %}
 
+{% block content %}
 <h1 class="govuk-heading-m">{{ object.name }}</h1>
-<a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">Create a ticket</a>
+<ul>
+  <li>
+    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">Create a ticket</a>
+  </li>
+  <li>
+    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-backlog' object.pk %}">View the backlog</a>
+  </li>
+</ul>
 
 <div class="kanban-container">
     {% for status in statuses %}

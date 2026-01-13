@@ -2,7 +2,7 @@ import json
 
 from django.urls import reverse
 from django.shortcuts import redirect
-from django.views.generic import DetailView, View, FormView
+from django.views.generic import DetailView, View, FormView, ListView
 from django.http import JsonResponse
 from kanban.models import Board, Ticket, TicketStatus
 from kanban import forms
@@ -15,6 +15,20 @@ class BoardView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
+        return context
+
+
+class BacklogView(ListView):
+    template_name = "kanban/backlog.html"
+    model = Ticket
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(board__id=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["board"] = Board.objects.get(pk=self.kwargs["pk"])
         return context
 
 
