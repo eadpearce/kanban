@@ -15,6 +15,7 @@ class Command(BaseCommand):
         parser.add_argument("email", nargs="?", type=str)
 
     def handle(self, *args, **options):
+        developer_user = None
         if options["email"]:
             developer_user = User.objects.get(email=options["email"])
 
