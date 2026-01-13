@@ -9,6 +9,7 @@ python-dotenv = "*"
 ipython = "*"
 crispy-forms-gds = "*"
 django-crispy-forms = "*"
+factory-boy = "*"
 
 [dev-packages]
 
