@@ -138,7 +138,7 @@ class TicketEditForm(forms.ModelForm):
         label="Status",
         queryset=TicketStatus.objects.all(),
         required=False,
-        help_text="Tickets with no assigned status can be found in the backlog",
+        help_text="Unassign status to move this ticket to the backlog",
     )
 
     class Meta:
@@ -148,9 +148,11 @@ class TicketEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         ticket_id = kwargs.pop("ticket_id")
         board_id = kwargs.pop("board_id")
+        status_initial = kwargs.pop("status_initial")
         super().__init__(*args, **kwargs)
 
         self.fields["status"].queryset = TicketStatus.objects.filter(board__id=board_id)
+        self.fields["status"].initial = status_initial
 
         back_url = reverse_lazy("ticket-detail", kwargs={"pk": ticket_id})
 

@@ -46,3 +46,13 @@
   border: 2px dashed #1d70b8;
   border-radius: 3px;
 }
+
+.kanban-status {
+  border: 1px solid #eaebec;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.kanban-ticket input {
+  margin-right: 10px;
+}

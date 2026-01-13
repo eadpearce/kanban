@@ -1,0 +1,142 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' object.pk %}">{{ object.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-settings' object.pk %}">Board settings</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Edit columns</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Edit columns</h1>
+<p class="govuk-body">Drag and drop to reorder</p>
+<ul class="govuk-list" id="board-columns">
+  {% for status in object.statuses.all %}
+  <li class="kanban-status kanban-ticket" draggable="true" data-id="{{ status.id }}">
+    <a class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state" href="#">{{ status.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+
+<script>
+  function updateBoardColumnsOrder(column, status_data) {
+    fetch("/ajax/statuses/bulk-update/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        statuses: status_data,
+      }),
+    })
+    .then((response) => response.json())
+    .catch((err) => console.error(err));
+  }
+
+  function updateColumn(column) {
+    const statuses = [];
+    column.querySelectorAll(".kanban-ticket").forEach((status, index) => {
+      statuses.push({
+        id: status.dataset.id,
+        order: index,
+      })
+    })
+    updateBoardColumnsOrder(column, statuses);
+  }
+
+  const tickets = document.querySelectorAll(".kanban-ticket");
+
+  tickets.forEach(ticket => {
+    ticket.addEventListener("dragstart", (e) => {
+      ticket.id = "dragged-ticket";
+      e.dataTransfer.effectAllowed = "move";
+      // Custom type to identify a task drag
+      e.dataTransfer.setData("ticket", "");
+    });
+
+    ticket.addEventListener("dragend", (e) => {
+      ticket.removeAttribute("id");
+    });
+  })
+
+  const column = document.getElementById("board-columns");
+
+  column.addEventListener("dragover", movePlaceholder);
+  column.addEventListener("dragleave", (event) => {
+    if (column.contains(event.relatedTarget)) return;
+    const placeholder = column.querySelector(".kanban-placeholder");
+    placeholder?.remove();
+  });
+
+  column.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const draggedTicket = document.getElementById("dragged-ticket");
+    const placeholder = column.querySelector(".kanban-placeholder");
+    if (!placeholder) return;
+    draggedTicket.remove();
+    column.insertBefore(draggedTicket, placeholder);
+    placeholder.remove();
+    updateColumn(column);
+  });
+
+  function makePlaceholder(draggedTicket) {
+    const placeholder = document.createElement("li");
+    placeholder.classList.add("kanban-placeholder");
+    placeholder.style.height = `${draggedTicket.offsetHeight}px`;
+    return placeholder;
+  }
+
+  function movePlaceholder(event) {
+    if (!event.dataTransfer.types.includes("ticket")) {
+      return;
+    }
+    event.preventDefault();
+    const draggedTicket = document.getElementById("dragged-ticket");
+    const column = event.currentTarget;
+    const tickets = column.children;
+    const existingPlaceholder = column.querySelector(".kanban-placeholder");
+    if (existingPlaceholder) {
+      const placeholderRect = existingPlaceholder.getBoundingClientRect();
+      if (
+        placeholderRect.top <= event.clientY &&
+        placeholderRect.bottom >= event.clientY
+      ) {
+        return;
+      }
+    }
+    for (const ticket of tickets) {
+      if (ticket.getBoundingClientRect().bottom >= event.clientY) {
+        if (ticket === existingPlaceholder) return;
+        existingPlaceholder?.remove();
+        if (ticket === draggedTicket || ticket.previousElementSibling === draggedTicket)
+          return;
+        column.insertBefore(
+          existingPlaceholder ?? makePlaceholder(draggedTicket),
+          ticket,
+        );
+        return;
+      }
+    }
+    existingPlaceholder?.remove();
+    if (tickets.lastElementChild === draggedTicket) return;
+    column.append(existingPlaceholder ?? makePlaceholder(draggedTicket));
+  }
+</script>
+{% endblock %}

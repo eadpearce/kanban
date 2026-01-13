@@ -38,6 +38,11 @@ urlpatterns = [
         name="board-settings",
     ),
     path(
+        "boards/<int:pk>/edit-columns/",
+        kanban_views.BoardEditColumnsView.as_view(),
+        name="board-edit-columns",
+    ),
+    path(
         "boards/<int:pk>/edit/", kanban_views.EditBoardView.as_view(), name="board-edit"
     ),
     path(
@@ -60,5 +65,10 @@ urlpatterns = [
         "ajax/tickets/bulk-update-status/",
         kanban_views.BulkUpdateTicketStatusAJAXView.as_view(),
         name="ajax-ticket-bulk-update-status",
+    ),
+    path(
+        "ajax/statuses/bulk-update/",
+        kanban_views.BulkUpdateBoardStatusesAJAXView.as_view(),
+        name="ajax-statuses-bulk-update",
     ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

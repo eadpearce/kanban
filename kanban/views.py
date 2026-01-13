@@ -68,6 +68,16 @@ class BoardSettingsView(DetailView):
         return context
 
 
+class BoardEditColumnsView(DetailView):
+    template_name = "kanban/board_edit_columns.html"
+    model = Board
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["statuses"] = self.object.statuses.all().order_by("order")
+        return context
+
+
 class BacklogView(ListView):
     template_name = "kanban/backlog.html"
     model = Ticket
@@ -131,6 +141,7 @@ class EditTicketView(UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs["ticket_id"] = self.object.id
         kwargs["board_id"] = self.object.board.id
+        kwargs["status_initial"] = self.object.status
         return kwargs
 
 
@@ -163,3 +174,18 @@ class BulkUpdateTicketStatusAJAXView(View):
             del response["_state"]
             updated_tickets.append(response)
         return JsonResponse({"updated": updated_tickets})
+
+
+class BulkUpdateBoardStatusesAJAXView(View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        updated_statuses = []
+        for status_data in data.get("statuses"):
+            status = TicketStatus.objects.get(id=status_data.get("id"))
+            order = status_data.get("order")
+            status.order = order
+            status.save()
+            response = status.__dict__
+            del response["_state"]
+            updated_statuses.append(response)
+        return JsonResponse({"updated": updated_statuses})
