@@ -33,6 +33,11 @@ urlpatterns = [
     ),
     path("boards/<int:pk>/", kanban_views.BoardView.as_view(), name="board-detail"),
     path(
+        "boards/<int:pk>/sprint/create/",
+        kanban_views.CreateSprintView.as_view(),
+        name="sprint-create",
+    ),
+    path(
         "boards/<int:pk>/status/create/",
         kanban_views.CreateStatusView.as_view(),
         name="status-create",
@@ -80,6 +85,11 @@ urlpatterns = [
         "ajax/tickets/bulk-update-status/",
         kanban_views.BulkUpdateTicketStatusAJAXView.as_view(),
         name="ajax-ticket-bulk-update-status",
+    ),
+    path(
+        "ajax/tickets/bulk-update-sprint/",
+        kanban_views.BulkUpdateTicketSprintAJAXView.as_view(),
+        name="ajax-ticket-bulk-update-sprint",
     ),
     path(
         "ajax/statuses/bulk-update/",

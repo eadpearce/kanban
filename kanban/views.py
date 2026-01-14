@@ -11,7 +11,7 @@ from django.views.generic import (
     TemplateView,
 )
 from django.http import JsonResponse
-from kanban.models import Board, BoardMembership, Ticket, TicketStatus, User
+from kanban.models import Board, BoardMembership, Ticket, TicketStatus, Sprint, User
 from kanban import forms
 from kanban.constants import BasicStatuses
 
@@ -219,7 +219,9 @@ class BacklogView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(board__id=self.kwargs["pk"], status__isnull=True)
+        return queryset.filter(
+            board__id=self.kwargs["pk"], status__isnull=True, sprint__isnull=True
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -229,6 +231,20 @@ class BacklogView(ListView):
         context["is_member"] = BoardMembership.objects.filter(
             board=board, user=self.request.user
         ).exists()
+        board_sprints = Sprint.objects.filter(board=board)
+        sprints = [
+            {
+                "name": "Backlog",
+                "id": "backlog",
+                "tickets": self.object_list,
+            }
+        ]
+        tickets_by_sprint = [
+            {"name": sprint.name, "id": sprint.id, "tickets": sprint.tickets.all()}
+            for sprint in board_sprints
+        ]
+        tickets_by_sprint += sprints
+        context["sprints"] = tickets_by_sprint
         return context
 
     def post(self, request, *args, **kwargs):
@@ -375,6 +391,20 @@ class CreateStatusView(FormView):
         return kwargs
 
 
+class CreateSprintView(FormView):
+    form_class = forms.SprintCreateForm
+    template_name = "core/form.html"
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        board = Board.objects.get(pk=self.kwargs.get("pk"))
+        Sprint.objects.create(
+            name=data["name"],
+            board=board,
+        )
+        return redirect(reverse("board-backlog", kwargs={"pk": self.kwargs["pk"]}))
+
+
 class EditTicketView(UpdateView):
     form_class = forms.TicketEditForm
     template_name = "core/form.html"
@@ -422,6 +452,23 @@ class BulkUpdateTicketStatusAJAXView(View):
             status_id = ticket_data.get("status")
             order = ticket_data.get("order")
             ticket.status = TicketStatus.objects.get(id=status_id)
+            ticket.order = order
+            ticket.save()
+            response = ticket.__dict__
+            del response["_state"]
+            updated_tickets.append(response)
+        return JsonResponse({"updated": updated_tickets})
+
+
+class BulkUpdateTicketSprintAJAXView(View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        updated_tickets = []
+        for ticket_data in data.get("tickets"):
+            ticket = Ticket.objects.get(id=ticket_data.get("id"))
+            sprint_id = ticket_data.get("sprint")
+            order = ticket_data.get("order")
+            ticket.sprint = Sprint.objects.get(id=sprint_id)
             ticket.order = order
             ticket.save()
             response = ticket.__dict__

@@ -30,6 +30,11 @@
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">Create a ticket</a>
   </li>
   {% endif %}
+  {% if is_owner %}
+  <li>
+    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-create' object.pk %}">Create a sprint</a>
+  </li>
+  {% endif %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-backlog' object.pk %}">View the backlog</a>
   </li>

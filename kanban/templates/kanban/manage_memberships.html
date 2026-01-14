@@ -31,12 +31,12 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
       <div class="govuk-form-group">
-        <div class="govuk-checkboxes govuk-checkboxes--small govuk-list" id="board-columns">
+        <div class="govuk-checkboxes govuk-checkboxes--small" id="board-columns">
           {% for membership in object_list %}
-          <div class="govuk-checkboxes__item kanban-status">
+          <div class="govuk-checkboxes__item kanban-ticket-small">
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_members" value="{{ membership.id }}">
             <label class="govuk-label govuk-checkboxes__label">{{ membership.user.get_full_name }}</label>
-            {% if membership.is_owner %}<div class="kanban-status-tag"><span class="govuk-tag govuk-tag--turquoise govuk-!-font-size-16">Owner</span></div>{% endif %}
+            {% if membership.is_owner %}<div class="kanban-ticket-small-tag"><span class="govuk-tag govuk-tag--turquoise govuk-!-font-size-16">Owner</span></div>{% endif %}
           </div>
           {% endfor %}
         </div>

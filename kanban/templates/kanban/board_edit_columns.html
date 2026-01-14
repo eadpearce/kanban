@@ -33,9 +33,9 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
       <div class="govuk-form-group">
-        <div class="govuk-checkboxes govuk-checkboxes--small govuk-list" id="board-columns">
+        <div class="govuk-checkboxes govuk-checkboxes--small" id="board-columns">
           {% for status in object.statuses.all %}
-          <div class="govuk-checkboxes__item kanban-status" draggable="true" data-id="{{ status.id }}">
+          <div class="govuk-checkboxes__item kanban-ticket-small" draggable="true" data-id="{{ status.id }}">
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_status" value="{{ status.id }}">
             <label class="govuk-label govuk-checkboxes__label">{{ status.name }}</label>
           </div>
@@ -75,7 +75,7 @@
 
   function updateColumn(column) {
     const statuses = [];
-    column.querySelectorAll(".kanban-status").forEach((status, index) => {
+    column.querySelectorAll(".kanban-ticket-small").forEach((status, index) => {
       statuses.push({
         id: status.dataset.id,
         order: index,
@@ -84,7 +84,7 @@
     updateBoardColumnsOrder(column, statuses);
   }
 
-  const tickets = document.querySelectorAll(".kanban-status");
+  const tickets = document.querySelectorAll(".kanban-ticket-small");
 
   tickets.forEach(ticket => {
     ticket.addEventListener("dragstart", (e) => {

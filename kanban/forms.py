@@ -6,7 +6,7 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 from crispy_forms_gds.layout import Hidden
 
-from kanban.models import Ticket, Board, BoardMembership, TicketStatus, User
+from kanban.models import Ticket, Board, BoardMembership, TicketStatus, Sprint, User
 
 
 class UserChoiceField(forms.ModelChoiceField):
@@ -32,6 +32,37 @@ class BoardCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
             layout.HTML.h1("Create a new board"),
+            "name",
+            layout.Submit(
+                "submit",
+                "Create",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class SprintCreateForm(forms.ModelForm):
+    name = forms.CharField(
+        label="Name",
+        error_messages={
+            "required": "Please enter a name",
+        },
+    )
+
+    class Meta:
+        model = Sprint
+        fields = ("name",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML.h1("Create a new sprint"),
+            layout.HTML.p(
+                "Once created your sprint will be visible in the backlog of your board where you will be able to add tickets to it"
+            ),
             "name",
             layout.Submit(
                 "submit",

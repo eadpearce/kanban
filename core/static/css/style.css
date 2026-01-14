@@ -51,7 +51,7 @@
   border-radius: 3px;
 }
 
-.kanban-status {
+.kanban-ticket-small {
   border: 1px solid #eaebec;
   border-radius: 3px;
   background-color: white;
@@ -59,20 +59,20 @@
   margin-bottom: 5px !important;
 }
 
-.kanban-status-tag {
+.kanban-ticket-small-tag {
   display: flex;
   align-items: center;
 }
 
-.govuk-checkboxes--small .kanban-status label.govuk-checkboxes__label:before {
+.govuk-checkboxes--small .kanban-ticket-small label.govuk-checkboxes__label:before {
   left: 10px;
 }
 
-.govuk-checkboxes--small .kanban-status label.govuk-checkboxes__label:after {
+.govuk-checkboxes--small .kanban-ticket-small label.govuk-checkboxes__label:after {
   left: 16px;
 }
 
-.govuk-checkboxes--small .kanban-status .govuk-checkboxes__input {
+.govuk-checkboxes--small .kanban-ticket-small .govuk-checkboxes__input {
   margin-left: 0;
 }
 
@@ -83,4 +83,10 @@
 .kanban-assignee-tag {
   display: block;
   float: right;
+}
+
+.kanban-sprint-container {
+  background-color: #F8F8F9;
+  padding: 10px;
+  min-height: 100px;
 }

@@ -29,16 +29,19 @@
   {% csrf_token %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
-      <div class="govuk-form-group">
-        <div class="govuk-checkboxes govuk-checkboxes--small govuk-list" id="board-columns">
-          {% for ticket in object_list %}
-          <div class="govuk-checkboxes__item kanban-status">
+      {% for sprint in sprints %}
+      <div class="govuk-form-group kanban-sprint">
+        <h2 class="govuk-heading-m">{{ sprint.name }}</h2>
+        <div class="govuk-checkboxes govuk-checkboxes--small kanban-sprint-container" data-id="{{ sprint.id }}">
+          {% for ticket in sprint.tickets %}
+          <div class="govuk-checkboxes__item kanban-ticket-small" data-id="{{ ticket.id }}" draggable="true">
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_tickets" value="{{ ticket.id }}">
             <label class="govuk-label govuk-checkboxes__label">{{ ticket.title }}</label>
           </div>
           {% endfor %}
         </div>
       </div>
+      {% endfor %}
     </div>
     <div class="govuk-grid-column-one-quarter">
       <div class="govuk-form-group">
@@ -68,7 +71,6 @@
   const inputs = document.querySelectorAll(".govuk-checkboxes__input");
   const inputValues = [];
 
-  
   inputs.forEach(input => {
     if (input.checked) {
       inputValues.push(input.value);
@@ -105,6 +107,113 @@
       statusSelector.style = "visibility: hidden;"
     }
   });
+
+  function updateTicketsInColumn(column, ticket_data) {
+    fetch("/ajax/tickets/bulk-update-sprint/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticket_data,
+      }),
+    })
+    .then((response) => response.json())
+    .catch((err) => console.error(err));
+  }
+
+  function updateColumn(column) {
+    const tickets = [];
+    column.querySelectorAll(".kanban-ticket-small").forEach((ticket, index) => {
+      tickets.push({
+        id: ticket.dataset.id,
+        sprint: column.dataset.id,
+        order: index,
+      })
+    })
+    updateTicketsInColumn(column, tickets);
+  }
+
+  const tickets = document.querySelectorAll(".kanban-ticket-small");
+
+  tickets.forEach(ticket => {
+    ticket.addEventListener("dragstart", (e) => {
+      ticket.id = "dragged-ticket";
+      e.dataTransfer.effectAllowed = "move";
+      // Custom type to identify a task drag
+      e.dataTransfer.setData("ticket", "");
+    });
+
+    ticket.addEventListener("dragend", (e) => {
+      ticket.removeAttribute("id");
+    });
+  })
+
+  const columns = document.querySelectorAll(".kanban-sprint-container");
+
+  columns.forEach(column => {
+    column.addEventListener("dragover", movePlaceholder);
+    column.addEventListener("dragleave", (event) => {
+      if (column.contains(event.relatedTarget)) return;
+      const placeholder = column.querySelector(".kanban-placeholder");
+      placeholder?.remove();
+    });
+
+    column.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const draggedTicket = document.getElementById("dragged-ticket");
+      const placeholder = column.querySelector(".kanban-placeholder");
+      if (!placeholder) return;
+      draggedTicket.remove();
+      column.insertBefore(draggedTicket, placeholder);
+      placeholder.remove();
+      updateColumn(column);
+    });
+  });
+
+  function makePlaceholder(draggedTicket) {
+    const placeholder = document.createElement("div");
+    placeholder.classList.add("kanban-placeholder");
+    placeholder.style.height = `${draggedTicket.offsetHeight}px`;
+    return placeholder;
+  }
+
+  function movePlaceholder(event) {
+    if (!event.dataTransfer.types.includes("ticket")) {
+      return;
+    }
+    event.preventDefault();
+    const draggedTicket = document.getElementById("dragged-ticket");
+    const column = event.currentTarget;
+    const tickets = column.children;
+    const existingPlaceholder = column.querySelector(".kanban-placeholder");
+    if (existingPlaceholder) {
+      const placeholderRect = existingPlaceholder.getBoundingClientRect();
+      if (
+        placeholderRect.top <= event.clientY &&
+        placeholderRect.bottom >= event.clientY
+      ) {
+        return;
+      }
+    }
+    for (const ticket of tickets) {
+      if (ticket.getBoundingClientRect().bottom >= event.clientY) {
+        if (ticket === existingPlaceholder) return;
+        existingPlaceholder?.remove();
+        if (ticket === draggedTicket || ticket.previousElementSibling === draggedTicket)
+          return;
+        column.insertBefore(
+          existingPlaceholder ?? makePlaceholder(draggedTicket),
+          ticket,
+        );
+        return;
+      }
+    }
+    existingPlaceholder?.remove();
+    if (tickets.lastElementChild === draggedTicket) return;
+    column.append(existingPlaceholder ?? makePlaceholder(draggedTicket));
+  }
 </script>
 
 {% endblock %}

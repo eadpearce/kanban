@@ -45,6 +45,13 @@ class TicketStatus(models.Model):
         ordering = ("order",)
 
 
+class Sprint(models.Model):
+    name = models.CharField(max_length=200)
+    start_date = models.DateTimeField(null=True, blank=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
+    board = models.ForeignKey(Board, related_name="sprints", on_delete=models.CASCADE)
+
+
 class Ticket(TimestampedMixin):
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -70,6 +77,9 @@ class Ticket(TimestampedMixin):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+    )
+    sprint = models.ForeignKey(
+        Sprint, related_name="tickets", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     @property
