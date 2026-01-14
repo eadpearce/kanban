@@ -255,6 +255,10 @@ class TicketCreateForm(forms.ModelForm):
         sprint_id = kwargs.pop("sprint_id")
         super().__init__(*args, **kwargs)
 
+        self.fields["sprint"].queryset = Sprint.objects.filter(
+            completed_date__isnull=True
+        )
+
         if sprint_id and sprint_id != "backlog":
             sprint = Sprint.objects.get(pk=sprint_id)
             self.fields["sprint"].initial = sprint
@@ -445,6 +449,29 @@ class TicketDescriptionForm(forms.ModelForm):
         self.helper.layout = layout.Layout(
             Hidden("field_name", value="description"),
             "description",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class StatusEditForm(forms.ModelForm):
+    name = forms.CharField(label="")
+
+    class Meta:
+        model = TicketStatus
+        fields = ("name",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML.h1("Rename ticket"),
+            "name",
             layout.Submit(
                 "submit",
                 "Save",

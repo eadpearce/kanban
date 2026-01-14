@@ -103,14 +103,33 @@ class BoardEditColumnsView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["statuses"] = self.object.statuses.all().order_by("order")
+        statuses = self.object.statuses.all().order_by("order")
+        context["statuses"] = statuses
+        user_member = BoardMembership.objects.filter(
+            board=self.object, user=self.request.user
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
+        else:
+            context["is_owner"] = False
+        context["ids"] = json.dumps(
+            [
+                status.id
+                for status in statuses.exclude(
+                    name__in=[BasicStatuses.TODO, BasicStatuses.DONE]
+                )
+            ]
+        )
         return context
 
     def post(self, request, *args, **kwargs):
         selected_statuses = request.POST.getlist("selected_status")
         action = request.POST.get("form-action")
         if action == "delete":
-            statuses = TicketStatus.objects.filter(id__in=selected_statuses)
+            statuses = TicketStatus.objects.filter(id__in=selected_statuses).exclude(
+                name__in=[BasicStatuses.TODO, BasicStatuses.DONE]
+            )
             column_names = ", ".join([f"“{status.name}”" for status in statuses])
             tickets = Ticket.objects.filter(status__id__in=statuses)
             tickets.update(status=None)
@@ -511,6 +530,19 @@ class CreateStatusView(FormView):
         kwargs = super().get_form_kwargs()
         kwargs["board_id"] = self.kwargs.get("pk")
         return kwargs
+
+
+class EditStatusView(UpdateView):
+    form_class = forms.StatusEditForm
+    template_name = "core/form.html"
+    model = TicketStatus
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        status = form.instance
+        status.name = data["name"]
+        status.save()
+        return redirect(reverse("board-edit-columns", kwargs={"pk": status.board.id}))
 
 
 class CreateSprintView(FormView):

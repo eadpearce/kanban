@@ -49,7 +49,7 @@
     {% for ticket in sprint.tickets %}
     <div class="govuk-checkboxes govuk-checkboxes--small">
       <div class="govuk-checkboxes__item kanban-ticket-small">
-        <p class="govuk-body kanban-status-name">
+        <p class="govuk-body kanban-status">
           <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
         </p>
       </div>

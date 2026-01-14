@@ -53,6 +53,11 @@ urlpatterns = [
         name="status-create",
     ),
     path(
+        "status/<int:pk>/edit/",
+        kanban_views.EditStatusView.as_view(),
+        name="status-edit",
+    ),
+    path(
         "boards/<int:pk>/settings/",
         kanban_views.BoardSettingsView.as_view(),
         name="board-settings",

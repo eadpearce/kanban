@@ -38,9 +38,11 @@
       {{ status.name }}{% if not forloop.last %},{% endif %}
       {% endfor %}
     </dd>
+    {% if is_owner %}
     <dd class="govuk-summary-list__actions">
       <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-edit-columns' object.id %}">Manage columns</a>
     </dd>
+    {% endif %}
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Board owner:</dt>
