@@ -27,32 +27,38 @@
 
 <p class="govuk-body">These are the tickets from all your completed sprints.</p>
 
-<form action="" method="POST">
-  {% csrf_token %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-three-quarters">
-      {% for sprint in sprints %}
+<div class="govuk-!-width-three-quarters">
+  {% for sprint in sprints %}
 
-      <div class="govuk-form-group kanban-sprint">
-        <h2 class="govuk-heading-m">{{ sprint.name }}</h2>
-        {% if not sprint.tickets %}
-        <p class="govuk-body">There are no tickets</p>
-        {% else %}
-        {% for ticket in sprint.tickets %}
-        <div class="govuk-checkboxes govuk-checkboxes--small">
-          <div class="govuk-checkboxes__item kanban-ticket-small">
-            <p class="govuk-body kanban-status-name">
-              <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
-            </p>
-          </div>
-        </div>
-        {% endfor %}
-        {% endif %}
+  <div class="govuk-form-group kanban-sprint">
+    <h2 class="govuk-heading-m">{{ sprint.name }}</h2>
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Date started:</dt>
+        <dd class="govuk-summary-list__value">{{ sprint.start_date }}</dd>
       </div>
-      {% endfor %}
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Date completed:</dt>
+        <dd class="govuk-summary-list__value">{{ sprint.completed_date }}</dd>
+      </div>
+    </dl>
+    {% if not sprint.tickets %}
+    <p class="govuk-body">There are no tickets</p>
+    {% else %}
+    <h3 class="govuk-heading-s">Tickets</h3>
+    {% for ticket in sprint.tickets %}
+    <div class="govuk-checkboxes govuk-checkboxes--small">
+      <div class="govuk-checkboxes__item kanban-ticket-small">
+        <p class="govuk-body kanban-status-name">
+          <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+        </p>
+      </div>
     </div>
+    {% endfor %}
+    {% endif %}
   </div>
-</form>
+  {% endfor %}
+</div>
 {% endif %}
 
 {% endblock %}
