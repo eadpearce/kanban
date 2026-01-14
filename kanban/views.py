@@ -12,7 +12,15 @@ from django.views.generic import (
     TemplateView,
 )
 from django.http import JsonResponse
-from kanban.models import Board, BoardMembership, Ticket, TicketStatus, Sprint, User
+from kanban.models import (
+    Board,
+    BoardMembership,
+    Ticket,
+    TicketStatus,
+    Sprint,
+    Comment,
+    User,
+)
 from kanban import forms
 from kanban.constants import BasicStatuses
 
@@ -416,7 +424,16 @@ class TicketView(TemplateView):
         data = request.POST
         obj = Ticket.objects.get(pk=self.kwargs["pk"])
 
-        if data["field_name"] == "assignee":
+        if data["form_name"] == "comment":
+            form = forms.CommentCreateForm(data=data, instance=obj)
+            if not form.is_valid():
+                return self.form_invalid(form)
+            Comment.objects.create(
+                author=User.objects.get(id=self.request.user.id),
+                text=form.cleaned_data["text"],
+                ticket=obj,
+            )
+        if data["form_name"] == "assignee":
             form = forms.TicketAssigneeForm(
                 data=data, instance=obj, board_id=obj.board.id
             )
@@ -424,7 +441,7 @@ class TicketView(TemplateView):
                 return self.form_invalid(form)
             obj.assignee = User.objects.get(id=data["assignee"])
 
-        if data["field_name"] == "status":
+        if data["form_name"] == "status":
             form = forms.TicketStatusForm(
                 data=data,
                 instance=obj,
@@ -438,13 +455,13 @@ class TicketView(TemplateView):
             else:
                 obj.status = None
 
-        if data["field_name"] == "title":
+        if data["form_name"] == "title":
             form = forms.TicketTitleForm(instance=obj, data=data)
             if not form.is_valid():
                 return self.form_invalid(form)
             obj.title = data["title"]
 
-        if data["field_name"] == "description":
+        if data["form_name"] == "description":
             form = forms.TicketDescriptionForm(instance=obj, data=data)
             if not form.is_valid():
                 return self.form_invalid(form)
@@ -458,7 +475,9 @@ class TicketView(TemplateView):
         context = super().get_context_data(**kwargs)
         obj = Ticket.objects.get(pk=self.kwargs["pk"])
         context["object"] = obj
+        context["ticket_comments"] = obj.comments.all().order_by("-created_at")
         context["users"] = User.objects.all()
+        context["comment_form"] = forms.CommentCreateForm(instance=obj)
         context["title_form"] = forms.TicketTitleForm(instance=obj)
         context["assignee_form"] = forms.TicketAssigneeForm(
             instance=obj, board_id=obj.board.id

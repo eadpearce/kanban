@@ -118,3 +118,20 @@ class Ticket(TimestampedMixin):
 
     def __str__(self):
         return f"Ticket {self.id}: {self.title}"
+
+
+class Comment(TimestampedMixin):
+    text = models.TextField()
+    author = models.ForeignKey(
+        User,
+        related_name="comments",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    ticket = models.ForeignKey(
+        Ticket, related_name="comments", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        ordering = ("created_at",)

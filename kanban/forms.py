@@ -1,12 +1,19 @@
 from django import forms
 from django.urls import reverse_lazy
-from django.core.exceptions import ValidationError
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 from crispy_forms_gds.layout import Hidden
 
-from kanban.models import Ticket, Board, BoardMembership, TicketStatus, Sprint, User
+from kanban.models import (
+    Ticket,
+    Board,
+    BoardMembership,
+    TicketStatus,
+    Sprint,
+    User,
+    Comment,
+)
 
 
 class UserChoiceField(forms.ModelChoiceField):
@@ -338,7 +345,7 @@ class TicketEditForm(forms.ModelForm):
 
 
 class TicketAssigneeForm(forms.ModelForm):
-    field_name = forms.CharField()
+    form_name = forms.CharField()
     assignee = UserChoiceField(
         label="",
         queryset=User.objects.all(),
@@ -362,7 +369,7 @@ class TicketAssigneeForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
-            Hidden("field_name", value="assignee"),
+            Hidden("form_name", value="assignee"),
             "assignee",
             layout.Submit(
                 "submit",
@@ -374,7 +381,7 @@ class TicketAssigneeForm(forms.ModelForm):
 
 
 class TicketStatusForm(forms.ModelForm):
-    field_name = forms.CharField()
+    form_name = forms.CharField()
     status = forms.ModelChoiceField(
         label="",
         queryset=TicketStatus.objects.all(),
@@ -394,7 +401,7 @@ class TicketStatusForm(forms.ModelForm):
         self.fields["status"].initial = status_initial
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
-            Hidden("field_name", value="status"),
+            Hidden("form_name", value="status"),
             "status",
             layout.Submit(
                 "submit",
@@ -406,7 +413,7 @@ class TicketStatusForm(forms.ModelForm):
 
 
 class TicketTitleForm(forms.ModelForm):
-    field_name = forms.CharField()
+    form_name = forms.CharField()
     title = forms.CharField(
         label="",
     )
@@ -420,7 +427,7 @@ class TicketTitleForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
-            Hidden("field_name", value="title"),
+            Hidden("form_name", value="title"),
             "title",
             layout.Submit(
                 "submit",
@@ -432,7 +439,7 @@ class TicketTitleForm(forms.ModelForm):
 
 
 class TicketDescriptionForm(forms.ModelForm):
-    field_name = forms.CharField()
+    form_name = forms.CharField()
     description = forms.CharField(
         label="",
         widget=forms.Textarea(),
@@ -447,7 +454,7 @@ class TicketDescriptionForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
-            Hidden("field_name", value="description"),
+            Hidden("form_name", value="description"),
             "description",
             layout.Submit(
                 "submit",
@@ -472,6 +479,30 @@ class StatusEditForm(forms.ModelForm):
         self.helper.layout = layout.Layout(
             layout.HTML.h1("Rename ticket"),
             "name",
+            layout.Submit(
+                "submit",
+                "Save",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class CommentCreateForm(forms.ModelForm):
+    form_name = forms.CharField()
+    text = forms.CharField(label="", widget=forms.Textarea())
+
+    class Meta:
+        model = Comment
+        fields = ("text",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            Hidden("form_name", value="comment"),
+            "text",
             layout.Submit(
                 "submit",
                 "Save",

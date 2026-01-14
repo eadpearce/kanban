@@ -99,3 +99,14 @@
 .kanban-protected {
   cursor: not-allowed;
 }
+
+.kanban-comment {
+  border-radius: 5px;
+  border: 1px solid #e3e3e6;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.kanban-comment--author {
+  font-weight: bold;
+}

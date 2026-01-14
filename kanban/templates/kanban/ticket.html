@@ -88,6 +88,25 @@
   </div>
 </dl>
 
+{% if is_member %}
+<p class="govuk-body"><a href="#" class="govuk-link govuk-link--no-visited-state" id="add-comment">Add a comment</a></p>
+{% endif %}
+
+<form action="" method="POST" id="comment-form">
+  {% csrf_token %}
+  {% crispy comment_form %}
+</form>
+
+{% for comment in ticket_comments %}
+<div class="govuk-!-width-full kanban-comment">
+  <p class="govuk-body">
+    <span class="kanban-comment--author">{{ comment.author.get_full_name }}</span><br/>
+    <time class="govuk-body govuk-!-font-size-16">{{ comment.created_at }}</time>
+  </p>
+  <p class="govuk-body">{{ comment.text }}</p>
+</div>
+{% endfor %}
+
 {% if is_member and not object.sprint.is_completed %}
 <script>
   const fields = {{ fields|safe }};
@@ -119,6 +138,29 @@
 
     changeLink.addEventListener("click", showForm);
   });
+
+  const commentForm = document.getElementById("comment-form");
+  commentForm.style = "display: none";
+  const input = commentForm.querySelector("textarea");
+
+  let commentFormVisible = false;
+
+  const commentLink = document.getElementById("add-comment");
+
+  function showForm() {
+    if (commentFormVisible) {
+      commentLink.innerHTML = "Change";
+      commentForm.style = "display: none";
+      commentFormVisible = false;
+    } else {
+      commentLink.innerHTML = "Cancel";
+      commentForm.style = "display: block";
+      commentFormVisible = true;
+      input.focus();
+    }
+  }
+
+  commentLink.addEventListener("click", showForm);
 </script>
 {% endif %}
 
