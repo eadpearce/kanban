@@ -439,7 +439,7 @@ class TicketView(TemplateView):
             )
             if not form.is_valid():
                 return self.form_invalid(form)
-            obj.assignee = User.objects.get(id=data["assignee"])
+            obj.assignee = form.cleaned_data["assignee"]
 
         if data["form_name"] == "status":
             form = forms.TicketStatusForm(
@@ -450,22 +450,23 @@ class TicketView(TemplateView):
             )
             if not form.is_valid():
                 return self.form_invalid(form)
-            if data["status"]:
-                obj.status = TicketStatus.objects.get(id=data["status"])
-            else:
-                obj.status = None
+            obj.status = TicketStatus.objects.get(id=form.cleaned_data["status"])
 
         if data["form_name"] == "title":
             form = forms.TicketTitleForm(instance=obj, data=data)
             if not form.is_valid():
                 return self.form_invalid(form)
-            obj.title = data["title"]
+            obj.title = form.cleaned_data["title"]
 
         if data["form_name"] == "description":
             form = forms.TicketDescriptionForm(instance=obj, data=data)
             if not form.is_valid():
                 return self.form_invalid(form)
-            obj.description = data["description"]
+            description = form.cleaned_data["description"]
+            if description:
+                obj.description = description
+            else:
+                obj.description = ""
 
         obj.save()
         print(obj.__dict__)

@@ -350,6 +350,7 @@ class TicketAssigneeForm(forms.ModelForm):
         label="",
         queryset=User.objects.all(),
         required=False,
+        empty_label="Unassigned",
     )
 
     class Meta:
@@ -443,6 +444,7 @@ class TicketDescriptionForm(forms.ModelForm):
     description = forms.CharField(
         label="",
         widget=forms.Textarea(),
+        required=False,
     )
 
     class Meta:
