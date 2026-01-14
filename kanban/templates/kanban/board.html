@@ -52,6 +52,9 @@
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-backlog' object.pk %}">View the backlog</a>
   </li>
+  <li>
+    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-archive' object.pk %}">View the archive</a>
+  </li>
   {% if is_owner %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-settings' object.pk %}">Board settings</a>

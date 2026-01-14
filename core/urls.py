@@ -80,6 +80,11 @@ urlpatterns = [
         kanban_views.BacklogView.as_view(),
         name="board-backlog",
     ),
+    path(
+        "boards/<int:pk>/archive/",
+        kanban_views.ArchiveView.as_view(),
+        name="board-archive",
+    ),
     path("tickets/<int:pk>/", kanban_views.TicketView.as_view(), name="ticket-detail"),
     path(
         "tickets/<int:pk>/edit/",

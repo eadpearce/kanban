@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Kanban board - {{ object.name }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' board.pk %}">{{ board.name }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+      <span>Archive</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Archive for {{ board.name }}</h1>
+
+{% if not object_list %}
+<p class="govuk-body">There's nothing in the archive.</p>
+{% else %}
+
+<p class="govuk-body">These are the tickets from all your completed sprints.</p>
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+      {% for sprint in sprints %}
+
+      <div class="govuk-form-group kanban-sprint">
+        <h2 class="govuk-heading-m">{{ sprint.name }}</h2>
+        {% if not sprint.tickets %}
+        <p class="govuk-body">There are no tickets</p>
+        {% else %}
+        {% for ticket in sprint.tickets %}
+        <div class="govuk-checkboxes govuk-checkboxes--small">
+          <div class="govuk-checkboxes__item kanban-ticket-small">
+            <p class="govuk-body kanban-status-name">
+              <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</form>
+{% endif %}
+
+{% endblock %}

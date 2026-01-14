@@ -21,7 +21,7 @@
 
 {% block content %}
 <h1 class="govuk-heading-l"><span id="current-title">{{ object.title }}</span></h1>
-{% if is_member %}
+{% if is_member and not object.sprint.is_completed %}
 <form action="" method="POST" id="form-title">
   {% crispy title_form %}
 </form>
@@ -30,19 +30,19 @@
 <dl class="govuk-summary-list">
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Author:</dt>
-    <dd class="govuk-summary-list__value">{% if object.author %}{{ object.author.get_full_name }}{% else %}—{% endif %}</dd>
+    <dd class="govuk-summary-list__value">{% if object.author and not object.sprint.is_completed %}{{ object.author.get_full_name }}{% else %}—{% endif %}</dd>
   </div>
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">Assignee:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-assignee">{% if object.assignee %}{{ object.assignee.get_full_name }}{% else %}—{% endif %}</span>
-      {% if is_member %}
+      {% if is_member and not object.sprint.is_completed %}
       <form action="" method="POST" id="form-assignee">
         {% crispy assignee_form %}
       </form>
       {% endif %}
     </dd>
-    {% if is_member %}
+    {% if is_member and not object.sprint.is_completed %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-assignee" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
     {% endif %}
   </div>
@@ -58,13 +58,13 @@
     <dt class="govuk-summary-list__key">Status:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-status">{{ object.status.name }}</span>
-      {% if is_member %}
+      {% if is_member and not object.sprint.is_completed %}
       <form action="" method="POST" id="form-status">
         {% crispy status_form %}
       </form>
       {% endif %}
     </dd>
-    {% if is_member %}
+    {% if is_member and not object.sprint.is_completed %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-status" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
     {% endif %}
   </div>
@@ -72,13 +72,13 @@
     <dt class="govuk-summary-list__key">Description:</dt>
     <dd class="govuk-summary-list__value">
       <span id="current-description">{{ object.description }}</span>
-      {% if is_member %}
+      {% if is_member and not object.sprint.is_completed %}
       <form action="" method="POST" id="form-description">
         {% crispy description_form %}
       </form>
       {% endif %}
     </dd>
-    {% if is_member %}
+    {% if is_member and not object.sprint.is_completed %}
     <dd class="govuk-summary-list__actions"><a href="#" id="change-description" class="govuk-link govuk-link--no-visited-state">Change</a></dd>
     {% endif %}
   </div>
@@ -88,7 +88,7 @@
   </div>
 </dl>
 
-{% if is_member %}
+{% if is_member and not object.sprint.is_completed %}
 <script>
   const fields = {{ fields|safe }};
 

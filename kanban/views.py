@@ -284,6 +284,42 @@ class BacklogView(ListView):
         return self.get(request)
 
 
+class ArchiveView(ListView):
+    template_name = "kanban/archive.html"
+    model = Ticket
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(board__id=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        board = Board.objects.get(pk=self.kwargs["pk"])
+        context["board"] = board
+        context["statuses"] = board.statuses.all().order_by("order")
+        user_member = BoardMembership.objects.filter(
+            board=board, user=self.request.user
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
+        else:
+            context["is_owner"] = False
+        board_sprints = Sprint.objects.filter(board=board, completed_date__isnull=False)
+        tickets_by_sprint = [
+            {
+                "name": sprint.name,
+                "start_date": sprint.start_date,
+                "completed_date": sprint.completed_date,
+                "id": sprint.id,
+                "tickets": sprint.tickets.all(),
+            }
+            for sprint in board_sprints
+        ]
+        context["sprints"] = tickets_by_sprint
+        return context
+
+
 class SprintStartView(FormView):
     template_name = "core/form.html"
     form_class = forms.SprintStartForm
