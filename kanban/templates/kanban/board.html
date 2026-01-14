@@ -20,6 +20,21 @@
 
 {% block content %}
 <h1 class="govuk-heading-m">{{ object.name }}</h1>
+<div class="govuk-!-width-one-half">
+<dl class="govuk-summary-list">
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Active sprint:</dt>
+    <dd class="govuk-summary-list__value">{{ object.active_sprint }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Date started:</dt>
+    <dd class="govuk-summary-list__value">{{ object.active_sprint.start_date }}</dd>
+    <dd class="govuk-summary-list__actions">
+      <a class="govuk-link govuk-link--no-visited-state" href="#">Complete sprint</a>
+    </dd>
+  </div>
+</dl>
+</div>
 {% if not is_member %}
 <p class="govuk-body">You are not a member of this board.</p>
 {% endif %}
@@ -28,11 +43,6 @@
   {% if is_member %}
   <li>
     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' object.pk %}">Create a ticket</a>
-  </li>
-  {% endif %}
-  {% if is_owner %}
-  <li>
-    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-create' object.pk %}">Create a sprint</a>
   </li>
   {% endif %}
   <li>

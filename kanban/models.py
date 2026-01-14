@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -19,6 +21,13 @@ class Board(TimestampedMixin):
 
     def __str__(self):
         return self.name
+
+    @property
+    def active_sprint(self):
+        today = timezone.now()
+        return Sprint.objects.filter(
+            start_date__lt=today, completed_date__isnull=True
+        ).first()
 
 
 class BoardMembership(models.Model):
@@ -50,6 +59,17 @@ class Sprint(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     board = models.ForeignKey(Board, related_name="sprints", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_active(self):
+        return (
+            self.start_date
+            and self.start_date < timezone.now()
+            and self.completed_date is None
+        )
 
 
 class Ticket(TimestampedMixin):

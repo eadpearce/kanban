@@ -1,4 +1,5 @@
 import json
+from django.utils import timezone
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -66,14 +67,12 @@ class BoardView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
-        is_member = BoardMembership.objects.filter(
+        user_member = BoardMembership.objects.filter(
             board=self.object, user=self.request.user
-        ).exists()
-        context["is_member"] = is_member
-        if is_member:
-            context["is_owner"] = BoardMembership.objects.get(
-                board=self.object, user=self.request.user
-            ).is_owner
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
         else:
             context["is_owner"] = False
         return context
@@ -87,14 +86,12 @@ class BoardSettingsView(DetailView):
         context = super().get_context_data(**kwargs)
         context["statuses"] = self.object.statuses.all().order_by("order")
         context["owner"] = self.object.members.filter(is_owner=True).first().user
-        is_member = BoardMembership.objects.filter(
+        user_member = BoardMembership.objects.filter(
             board=self.object, user=self.request.user
-        ).exists()
-        context["is_member"] = is_member
-        if is_member:
-            context["is_owner"] = BoardMembership.objects.get(
-                board=self.object, user=self.request.user
-            ).is_owner
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
         else:
             context["is_owner"] = False
         return context
@@ -141,14 +138,12 @@ class ManageMembershipsView(ListView):
         board = Board.objects.get(pk=self.kwargs["pk"])
         context["board"] = board
         context["statuses"] = board.statuses.all().order_by("order")
-        is_member = BoardMembership.objects.filter(
+        user_member = BoardMembership.objects.filter(
             board=board, user=self.request.user
-        ).exists()
-        context["is_member"] = is_member
-        if is_member:
-            context["is_owner"] = BoardMembership.objects.get(
-                board=board, user=self.request.user
-            ).is_owner
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
         else:
             context["is_owner"] = False
         return context
@@ -228,23 +223,40 @@ class BacklogView(ListView):
         board = Board.objects.get(pk=self.kwargs["pk"])
         context["board"] = board
         context["statuses"] = board.statuses.all().order_by("order")
-        context["is_member"] = BoardMembership.objects.filter(
+        user_member = BoardMembership.objects.filter(
             board=board, user=self.request.user
-        ).exists()
+        )
+        context["is_member"] = user_member.exists()
+        if user_member.exists():
+            context["is_owner"] = user_member.first().is_owner
+        else:
+            context["is_owner"] = False
         board_sprints = Sprint.objects.filter(board=board)
         sprints = [
             {
                 "name": "Backlog",
+                "is_active": False,
                 "id": "backlog",
                 "tickets": self.object_list,
             }
         ]
         tickets_by_sprint = [
-            {"name": sprint.name, "id": sprint.id, "tickets": sprint.tickets.all()}
+            {
+                "name": sprint.name,
+                "is_active": sprint.is_active,
+                "id": sprint.id,
+                "tickets": sprint.tickets.all(),
+            }
             for sprint in board_sprints
         ]
         tickets_by_sprint += sprints
-        context["sprints"] = tickets_by_sprint
+        active_sprint_tickets = list(
+            filter(lambda x: x["is_active"], tickets_by_sprint)
+        )
+        inactive_sprint_tickets = list(
+            filter(lambda x: not x["is_active"], tickets_by_sprint)
+        )
+        context["sprints"] = active_sprint_tickets + inactive_sprint_tickets
         return context
 
     def post(self, request, *args, **kwargs):
@@ -270,6 +282,43 @@ class BacklogView(ListView):
                 f"Ticket(s) {ticket_titles} moved to “{status.name}”",
             )
         return self.get(request)
+
+
+class SprintStartView(FormView):
+    template_name = "core/form.html"
+    form_class = forms.SprintStartForm
+
+    @property
+    def sprint(self):
+        return Sprint.objects.get(pk=self.kwargs["pk"])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board"] = self.sprint.board
+        return kwargs
+
+    def form_valid(self, form):
+        active_sprint = self.sprint.board.active_sprint
+        if active_sprint:
+            active_sprint.start_date = None
+            active_sprint.save()
+
+        tickets = Ticket.objects.filter(board=self.sprint.board, status__isnull=False)
+        for ticket in tickets:
+            ticket.status = None
+            ticket.save()
+
+        sprint = self.sprint
+        sprint.start_date = timezone.now()
+        sprint.save()
+
+        first_status = (
+            TicketStatus.objects.filter(board=sprint.board).order_by("order").first()
+        )
+        for ticket in sprint.tickets.all():
+            ticket.status = first_status
+            ticket.save()
+        return redirect(reverse("board-detail", kwargs={"pk": sprint.board.pk}))
 
 
 class TicketView(TemplateView):

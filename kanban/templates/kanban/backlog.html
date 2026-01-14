@@ -20,18 +20,33 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">Backlog for {{ board.name }}</h1>
-{% if not is_member %}{% endif %}
 {% if not object_list %}
 <p class="govuk-body">There's nothing in the backlog. {% if is_member %}<a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}">Create a ticket</a>{% endif %}</p>
 {% else %}
-<p class="govuk-body">These tickets have not yet been assigned a status.</p>
+
+{% if is_owner %}
+<p class="govuk-body">
+  <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-create' board.pk %}">Create a sprint</a>
+</p>
+{% endif %}
+
 <form action="" method="POST">
   {% csrf_token %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
       {% for sprint in sprints %}
       <div class="govuk-form-group kanban-sprint">
-        <h2 class="govuk-heading-m">{{ sprint.name }}</h2>
+        <h2 class="govuk-heading-m">{{ sprint.name }}{% if sprint.is_active %} (Active sprint){% endif %}</h2>
+        {% if sprint.is_active %} 
+        <p class="govuk-body">
+          <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-detail' board.pk %}">View board</a>
+        </p>
+        {% endif %}
+        {% if sprint.id != "backlog" and not sprint.is_active %}
+        <p class="govuk-body">
+          <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-start' sprint.id %}">Start this sprint</a>
+        </p>
+        {% endif %}
         <div class="govuk-checkboxes govuk-checkboxes--small kanban-sprint-container" data-id="{{ sprint.id }}">
           {% for ticket in sprint.tickets %}
           <div class="govuk-checkboxes__item kanban-ticket-small" data-id="{{ ticket.id }}" draggable="true">

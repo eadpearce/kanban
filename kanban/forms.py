@@ -73,6 +73,34 @@ class SprintCreateForm(forms.ModelForm):
         )
 
 
+class SprintStartForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        board = kwargs.pop("board")
+        super().__init__(*args, **kwargs)
+
+        active_sprint_warning = ""
+        if board.active_sprint:
+            active_sprint_warning = layout.HTML.warning(
+                "This board already has an active sprint. Starting a new sprint will move the current active sprint back into the backlog."
+            )
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML.h1("Start this sprint"),
+            active_sprint_warning,
+            layout.HTML.p(
+                "Once the sprint is started, its tickets will be moved to the board. Any tickets already in the board will be moved to the backlog."
+            ),
+            layout.Submit(
+                "submit",
+                "Start sprint",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
 class BoardEditForm(forms.ModelForm):
     name = forms.CharField(
         label="Name",
