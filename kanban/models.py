@@ -78,7 +78,7 @@ class Sprint(models.Model):
 
 class Ticket(TimestampedMixin):
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     board = models.ForeignKey(Board, related_name="tickets", on_delete=models.CASCADE)
     status = models.ForeignKey(
         TicketStatus,

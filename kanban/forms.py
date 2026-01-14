@@ -238,15 +238,12 @@ class TicketCreateForm(forms.ModelForm):
     description = forms.CharField(
         label="Description",
         widget=forms.Textarea(),
-        error_messages={
-            "required": "Please enter a description",
-        },
-    )
-    status = forms.ModelChoiceField(
-        label="Status",
-        queryset=TicketStatus.objects.all(),
         required=False,
-        help_text="Tickets with no assigned status will be added to the backlog",
+    )
+    sprint = forms.ModelChoiceField(
+        label="Sprint",
+        queryset=Sprint.objects.all(),
+        required=False,
     )
 
     class Meta:
@@ -255,9 +252,12 @@ class TicketCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         board_id = kwargs.pop("board_id")
+        sprint_id = kwargs.pop("sprint_id")
         super().__init__(*args, **kwargs)
 
-        self.fields["status"].queryset = TicketStatus.objects.filter(board__id=board_id)
+        if sprint_id and sprint_id != "backlog":
+            sprint = Sprint.objects.get(pk=sprint_id)
+            self.fields["sprint"].initial = sprint
 
         back_url = reverse_lazy("board-detail", kwargs={"pk": board_id})
 
@@ -269,7 +269,7 @@ class TicketCreateForm(forms.ModelForm):
             layout.HTML.h1("Create a new ticket"),
             "title",
             "description",
-            "status",
+            "sprint",
             layout.Submit(
                 "submit",
                 "Create",

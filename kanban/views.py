@@ -463,7 +463,13 @@ class CreateTicketView(FormView):
     template_name = "core/form.html"
 
     def get_success_url(self, board_id):
-        return redirect(reverse("board-detail", kwargs={"pk": board_id}))
+        page = self.request.GET.get("page")
+        if page == "backlog":
+            return redirect(reverse("board-backlog", kwargs={"pk": board_id}))
+        elif page == "board":
+            return redirect(reverse("board-detail", kwargs={"pk": board_id}))
+        else:
+            return redirect(reverse("board-detail", kwargs={"pk": board_id}))
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -472,14 +478,15 @@ class CreateTicketView(FormView):
         Ticket.objects.create(
             title=data["title"],
             description=data["description"],
-            status=data["status"],
             board=board,
             author=author,
+            sprint=data["sprint"],
         )
         return self.get_success_url(board.id)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs["sprint_id"] = self.request.GET.get("sprint_id")
         kwargs["board_id"] = self.kwargs.get("pk")
         return kwargs
 
@@ -582,8 +589,11 @@ class BulkUpdateTicketSprintAJAXView(View):
         for ticket_data in data.get("tickets"):
             ticket = Ticket.objects.get(id=ticket_data.get("id"))
             sprint_id = ticket_data.get("sprint")
+            if sprint_id == "backlog":
+                ticket.sprint = None
+            else:
+                ticket.sprint = Sprint.objects.get(id=sprint_id)
             order = ticket_data.get("order")
-            ticket.sprint = Sprint.objects.get(id=sprint_id)
             ticket.order = order
             ticket.save()
             response = ticket.__dict__

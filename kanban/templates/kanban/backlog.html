@@ -20,8 +20,8 @@
 
 {% block content %}
 <h1 class="govuk-heading-l">Backlog for {{ board.name }}</h1>
-{% if not object_list %}
-<p class="govuk-body">There's nothing in the backlog. {% if is_member %}<a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}">Create a ticket</a>{% endif %}</p>
+{% if not object_list and not sprints %}
+<p class="govuk-body">There's nothing in the backlog. {% if is_member %}<a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}">Create a ticket</a>{% endif %} {% if is_owner %}or <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-create' board.pk %}">create a sprint</a>{% endif %}</p>
 {% else %}
 
 {% if is_owner %}
@@ -29,7 +29,6 @@
   <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-create' board.pk %}">Create a sprint</a>
 </p>
 {% endif %}
-
 <form action="" method="POST">
   {% csrf_token %}
   <div class="govuk-grid-row">
@@ -37,13 +36,18 @@
       {% for sprint in sprints %}
       <div class="govuk-form-group kanban-sprint">
         <h2 class="govuk-heading-m">{{ sprint.name }}{% if sprint.is_active %} (Active sprint){% endif %}</h2>
+        {% if is_member %}
+        <p class="govuk-body">
+          <a class="govuk-link govuk-link--no-visited-state" href="{% url 'create-ticket' board.pk %}?sprint_id={{ sprint.id }}&page=backlog">Create a ticket</a>
+        </p>
+        {% endif %}
         {% if sprint.is_active %} 
         <p class="govuk-body">
           <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-detail' board.pk %}">View board</a>
         </p>
         {% endif %}
         {% if sprint.id != "backlog" and not sprint.is_active %}
-        <p class="govuk-body">
+        <p class="govuk-body" id="start-sprint-{{ sprint.id }}">
           <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-start' sprint.id %}">Start this sprint</a>
         </p>
         {% endif %}
