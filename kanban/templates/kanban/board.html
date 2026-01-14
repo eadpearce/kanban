@@ -21,7 +21,7 @@
 {% block content %}
 <h1 class="govuk-heading-m">{{ object.name }}</h1>
 {% if not object.active_sprint %}
-<p class="govuk-body">No active sprint. Go to the backlog to manage sprints.</p>
+<p class="govuk-body">No active sprint. <a class="govuk-link govuk-link--no-visited-state" href="{% url 'board-backlog' object.pk %}">View the backlog</a> to manage sprints.</p>
 {% else %}
 <div class="govuk-!-width-one-half">
   <dl class="govuk-summary-list">
