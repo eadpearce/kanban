@@ -450,7 +450,7 @@ class TicketView(TemplateView):
             )
             if not form.is_valid():
                 return self.form_invalid(form, "status_form")
-            obj.status = TicketStatus.objects.get(id=form.cleaned_data["status"])
+            obj.status = form.cleaned_data["status"]
 
         if data["form_name"] == "title":
             form = forms.TicketTitleForm(instance=obj, data=data)
