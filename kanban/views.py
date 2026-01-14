@@ -417,8 +417,8 @@ class SprintCompleteView(FormView):
 class TicketView(TemplateView):
     template_name = "kanban/ticket.html"
 
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
+    def form_invalid(self, form, form_name):
+        return self.render_to_response(self.get_context_data(**{form_name: form}))
 
     def post(self, request, *args, **kwargs):
         data = request.POST
@@ -427,7 +427,7 @@ class TicketView(TemplateView):
         if data["form_name"] == "comment":
             form = forms.CommentCreateForm(data=data, instance=obj)
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(form, "comment_form")
             Comment.objects.create(
                 author=User.objects.get(id=self.request.user.id),
                 text=form.cleaned_data["text"],
@@ -438,7 +438,7 @@ class TicketView(TemplateView):
                 data=data, instance=obj, board_id=obj.board.id
             )
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(form, "assignee_form")
             obj.assignee = form.cleaned_data["assignee"]
 
         if data["form_name"] == "status":
@@ -449,19 +449,19 @@ class TicketView(TemplateView):
                 status_initial=obj.status,
             )
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(form, "status_form")
             obj.status = TicketStatus.objects.get(id=form.cleaned_data["status"])
 
         if data["form_name"] == "title":
             form = forms.TicketTitleForm(instance=obj, data=data)
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(form, "title_form")
             obj.title = form.cleaned_data["title"]
 
         if data["form_name"] == "description":
             form = forms.TicketDescriptionForm(instance=obj, data=data)
             if not form.is_valid():
-                return self.form_invalid(form)
+                return self.form_invalid(form, "description_form")
             description = form.cleaned_data["description"]
             if description:
                 obj.description = description
@@ -494,6 +494,13 @@ class TicketView(TemplateView):
             board=obj.board, user=self.request.user
         ).exists()
         context["is_member"] = is_member
+
+        form = kwargs.get("comment_form")
+        if form:
+            context["comment_form_errored"] = json.dumps(hasattr(form, "errors"))
+            context["comment_form"] = form
+        else:
+            context["comment_form_errored"] = json.dumps(False)
         return context
 
 

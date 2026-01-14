@@ -492,7 +492,13 @@ class StatusEditForm(forms.ModelForm):
 
 class CommentCreateForm(forms.ModelForm):
     form_name = forms.CharField()
-    text = forms.CharField(label="", widget=forms.Textarea())
+    text = forms.CharField(
+        label="",
+        widget=forms.Textarea(),
+        error_messages={
+            "required": "Comment text cannot be blank",
+        },
+    )
 
     class Meta:
         model = Comment

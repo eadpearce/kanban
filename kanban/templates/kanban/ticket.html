@@ -110,6 +110,7 @@
 {% if is_member and not object.sprint.is_completed %}
 <script>
   const fields = {{ fields|safe }};
+  const commentFormErrored = {{ comment_form_errored|safe }};
 
   fields.forEach(field => {
     const currentValue = document.getElementById(`current-${field}`);
@@ -140,16 +141,22 @@
   });
 
   const commentForm = document.getElementById("comment-form");
-  commentForm.style = "display: none";
   const input = commentForm.querySelector("textarea");
-
-  let commentFormVisible = false;
-
   const commentLink = document.getElementById("add-comment");
+
+  let commentFormVisible = commentFormErrored;
+
+  if (!commentFormVisible) {
+    commentForm.style = "display: none";
+  } else {
+    commentLink.innerHTML = "Cancel";
+    commentForm.style = "display: block";
+  }
+
 
   function showForm() {
     if (commentFormVisible) {
-      commentLink.innerHTML = "Change";
+      commentLink.innerHTML = "Add a comment";
       commentForm.style = "display: none";
       commentFormVisible = false;
     } else {
