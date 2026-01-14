@@ -14,6 +14,7 @@ from kanban.models import (
     User,
     Comment,
 )
+from kanban.constants import BasicStatuses
 
 
 class UserChoiceField(forms.ModelChoiceField):
@@ -252,6 +253,11 @@ class TicketCreateForm(forms.ModelForm):
         queryset=Sprint.objects.all(),
         required=False,
     )
+    assignee = UserChoiceField(
+        label="Assignee",
+        queryset=User.objects.all(),
+        required=False,
+    )
 
     class Meta:
         model = Ticket
@@ -264,6 +270,10 @@ class TicketCreateForm(forms.ModelForm):
 
         self.fields["sprint"].queryset = Sprint.objects.filter(
             completed_date__isnull=True
+        )
+
+        self.fields["assignee"].queryset = User.objects.filter(
+            memberships__board__id=board_id
         )
 
         if sprint_id and sprint_id != "backlog":
@@ -281,6 +291,7 @@ class TicketCreateForm(forms.ModelForm):
             "title",
             "description",
             "sprint",
+            "assignee",
             layout.Submit(
                 "submit",
                 "Create",

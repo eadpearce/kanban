@@ -518,15 +518,17 @@ class CreateTicketView(FormView):
             return redirect(reverse("board-detail", kwargs={"pk": board_id}))
 
     def form_valid(self, form):
-        data = form.cleaned_data
         author = User.objects.get(id=self.request.user.id)
         board = Board.objects.get(pk=self.kwargs.get("pk"))
+        todo = TicketStatus.objects.get(board=board, name=BasicStatuses.TODO)
         Ticket.objects.create(
-            title=data["title"],
-            description=data["description"],
+            title=form.cleaned_data["title"],
+            description=form.cleaned_data["description"],
             board=board,
             author=author,
-            sprint=data["sprint"],
+            assignee=form.cleaned_data["assignee"],
+            sprint=form.cleaned_data["sprint"],
+            status=todo,
         )
         return self.get_success_url(board.id)
 
