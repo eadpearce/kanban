@@ -20,21 +20,25 @@
 
 {% block content %}
 <h1 class="govuk-heading-m">{{ object.name }}</h1>
+{% if not object.active_sprint %}
+<p class="govuk-body">No active sprint. Go to the backlog to manage sprints.</p>
+{% else %}
 <div class="govuk-!-width-one-half">
-<dl class="govuk-summary-list">
-  <div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">Active sprint:</dt>
-    <dd class="govuk-summary-list__value">{{ object.active_sprint }}</dd>
-  </div>
-  <div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">Date started:</dt>
-    <dd class="govuk-summary-list__value">{{ object.active_sprint.start_date }}</dd>
-    <dd class="govuk-summary-list__actions">
-      <a class="govuk-link govuk-link--no-visited-state" href="#">Complete sprint</a>
-    </dd>
-  </div>
-</dl>
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Active sprint:</dt>
+      <dd class="govuk-summary-list__value">{{ object.active_sprint }}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Date started:</dt>
+      <dd class="govuk-summary-list__value">{{ object.active_sprint.start_date }}</dd>
+      <dd class="govuk-summary-list__actions">
+        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'sprint-complete' object.active_sprint.id %}">Complete sprint</a>
+      </dd>
+    </div>
+  </dl>
 </div>
+{% endif %}
 {% if not is_member %}
 <p class="govuk-body">You are not a member of this board.</p>
 {% endif %}
@@ -71,6 +75,7 @@
       <h2 class="kanban-header govuk-heading-s">{{ status.name }}</h2>
       <div class="kanban-ticket-list" data-status="{{ status.id }}">
       {% for ticket in status.tickets.all %}
+        {% if not ticket.sprint.is_completed %}
         <a class="govuk-link govuk-link--no-visited-state kanban-ticket" href="{% url 'ticket-detail' ticket.id %}" {% if is_member %}draggable="true"{% endif %} data-id="{{ ticket.id }}">
             <p class="govuk-!-font-size-16 govuk-link govuk-link--no-visited-state">{{ ticket.title }}</p>
             <div class="govuk-!-margin-top-2 kanban-ticket-footer">
@@ -79,6 +84,7 @@
               {% else %}<span title="No assignee" class="kanban-assignee-tag govuk-tag govuk-tag--light-blue govuk-!-font-size-16">—</span>{% endif %}
             </div>
         </a>
+        {% endif %}
         {% endfor %}
       </div>
     </div>

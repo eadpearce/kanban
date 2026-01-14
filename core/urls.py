@@ -38,6 +38,11 @@ urlpatterns = [
         name="sprint-start",
     ),
     path(
+        "sprints/<int:pk>/complete/",
+        kanban_views.SprintCompleteView.as_view(),
+        name="sprint-complete",
+    ),
+    path(
         "boards/<int:pk>/sprint/create/",
         kanban_views.CreateSprintView.as_view(),
         name="sprint-create",

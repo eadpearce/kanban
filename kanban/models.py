@@ -71,6 +71,10 @@ class Sprint(models.Model):
             and self.completed_date is None
         )
 
+    @property
+    def is_completed(self):
+        return self.start_date is not None and self.completed_date is not None
+
 
 class Ticket(TimestampedMixin):
     title = models.CharField(max_length=200)

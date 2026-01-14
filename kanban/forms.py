@@ -73,6 +73,27 @@ class SprintCreateForm(forms.ModelForm):
         )
 
 
+class SprintCompleteForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        board = kwargs.pop("board")
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML.h1("Complete this sprint"),
+            layout.HTML.p(
+                "Once the sprint is completed any tickets that do not have a status of “Done” will be moved back to the backlog."
+            ),
+            layout.Submit(
+                "submit",
+                "Complete sprint",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
 class SprintStartForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

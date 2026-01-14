@@ -231,7 +231,7 @@ class BacklogView(ListView):
             context["is_owner"] = user_member.first().is_owner
         else:
             context["is_owner"] = False
-        board_sprints = Sprint.objects.filter(board=board)
+        board_sprints = Sprint.objects.filter(board=board, completed_date__isnull=True)
         sprints = [
             {
                 "name": "Backlog",
@@ -318,6 +318,36 @@ class SprintStartView(FormView):
         for ticket in sprint.tickets.all():
             ticket.status = first_status
             ticket.save()
+        return redirect(reverse("board-detail", kwargs={"pk": sprint.board.pk}))
+
+
+class SprintCompleteView(FormView):
+    template_name = "core/form.html"
+    form_class = forms.SprintCompleteForm
+
+    @property
+    def sprint(self):
+        return Sprint.objects.get(pk=self.kwargs["pk"])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board"] = self.sprint.board
+        return kwargs
+
+    def form_valid(self, form):
+        sprint = self.sprint
+        done = TicketStatus.objects.get(board=sprint.board, name="Done")
+        all_tickets = Ticket.objects.filter(board=sprint.board, sprint=sprint)
+        unfinished_tickets = all_tickets.exclude(status=done)
+
+        for ticket in unfinished_tickets:
+            ticket.status = None
+            ticket.sprint = None
+            ticket.save()
+
+        sprint.completed_date = timezone.now()
+        sprint.save()
+
         return redirect(reverse("board-detail", kwargs={"pk": sprint.board.pk}))
 
 
