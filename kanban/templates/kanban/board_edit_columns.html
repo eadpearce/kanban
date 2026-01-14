@@ -35,9 +35,13 @@
       <div class="govuk-form-group">
         <div class="govuk-checkboxes govuk-checkboxes--small" id="board-columns">
           {% for status in object.statuses.all %}
-          <div class="govuk-checkboxes__item kanban-ticket-small" draggable="true" data-id="{{ status.id }}">
+          <div class="govuk-checkboxes__item kanban-ticket-small" {% if not status.name == 'Done' and not status.name == 'To do' %}draggable="true"{% endif %} data-id="{{ status.id }}">
+            {% if not status.name == "Done" and not status.name == "To do" %}
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_status" value="{{ status.id }}">
             <label class="govuk-label govuk-checkboxes__label">{{ status.name }}</label>
+            {% else %}
+            <p class="govuk-body kanban-protected-status-name">{{ status.name }}</p>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -120,7 +124,7 @@
   });
 
   function makePlaceholder(draggedTicket) {
-    const placeholder = document.createElement("li");
+    const placeholder = document.createElement("div");
     placeholder.classList.add("kanban-placeholder");
     placeholder.style.height = `${draggedTicket.offsetHeight}px`;
     return placeholder;

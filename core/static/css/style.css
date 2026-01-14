@@ -90,3 +90,9 @@
   padding: 10px;
   min-height: 100px;
 }
+
+.kanban-protected-status-name {
+  padding: 7px 15px;
+  margin-bottom: 0;
+  cursor: not-allowed;
+}
