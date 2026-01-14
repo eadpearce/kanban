@@ -55,7 +55,11 @@
           {% for ticket in sprint.tickets %}
           <div class="govuk-checkboxes__item kanban-ticket-small" data-id="{{ ticket.id }}" draggable="true">
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_tickets" value="{{ ticket.id }}">
-            <label class="govuk-label govuk-checkboxes__label">{{ ticket.title }}</label>
+            <label class="govuk-label govuk-checkboxes__label">
+              <a class="govuk-link govuk-link--no-visited-state" href="{% url 'ticket-detail' ticket.id %}">{{ ticket.title }}</a>
+              <span
+              class="kanban-status-tag govuk-tag {% if ticket.status %}{% if ticket.status.name == 'Done' %}govuk-tag--green{% else %}govuk-tag--light-blue{% endif %}{% else %}govuk-tag--grey{% endif %} govuk-!-font-size-16">{% if ticket.status %}{{ ticket.status.name }}{% else %}Backlog{% endif %}</span>
+            </label>
           </div>
           {% endfor %}
         </div>

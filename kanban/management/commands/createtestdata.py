@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from kanban import factories
+from kanban.constants import BasicStatuses
 
 User = get_user_model()
 
@@ -24,9 +25,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created test users: {users}"))
 
         board = factories.BoardFactory.create()
-        todo = factories.TicketStatusFactory(name="To do", board=board)
-        in_progress = factories.TicketStatusFactory(name="In progress", board=board)
-        done = factories.TicketStatusFactory(name="Done", board=board)
+        todo = factories.TicketStatusFactory(name=BasicStatuses.TODO, board=board)
+        in_progress = factories.TicketStatusFactory(
+            name=BasicStatuses.IN_PROGRESS, board=board
+        )
+        done = factories.TicketStatusFactory(name=BasicStatuses.DONE, board=board)
         statuses = [todo, in_progress, done]
 
         memberships = []
