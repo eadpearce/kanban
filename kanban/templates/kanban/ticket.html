@@ -12,6 +12,11 @@
     <li class="govuk-breadcrumbs__list-item">
       <a class="govuk-breadcrumbs__link" href="{% url 'board-detail' object.board.pk %}">{{ object.board.name }}</a>
     </li>
+    {% if from_page %}
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="{{ from_page }}">{{ from_page_title}}</a>
+    </li>
+    {% endif %}
     <li class="govuk-breadcrumbs__list-item">
       <span>Ticket</span>
     </li>
@@ -88,14 +93,14 @@
   </div>
 </dl>
 
-{% if is_member %}
+{% if is_member and not object.sprint.is_completed %}
 <p class="govuk-body"><a href="#" class="govuk-link govuk-link--no-visited-state" id="add-comment">Add a comment</a></p>
-{% endif %}
 
 <form action="" method="POST" id="comment-form">
   {% csrf_token %}
   {% crispy comment_form %}
 </form>
+{% endif %}
 
 {% for comment in ticket_comments %}
 <div class="govuk-!-width-full kanban-comment">

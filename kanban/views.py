@@ -332,7 +332,9 @@ class ArchiveView(ListView):
             context["is_owner"] = user_member.first().is_owner
         else:
             context["is_owner"] = False
-        board_sprints = Sprint.objects.filter(board=board, completed_date__isnull=False)
+        board_sprints = Sprint.objects.filter(
+            board=board, completed_date__isnull=False
+        ).order_by("-completed_date")
         tickets_by_sprint = [
             {
                 "name": sprint.name,
@@ -475,6 +477,14 @@ class TicketView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = Ticket.objects.get(pk=self.kwargs["pk"])
+        page = self.request.GET.get("page")
+        context["from_page"] = None
+        if page == "archive":
+            context["from_page"] = reverse("board-archive", kwargs={"pk": obj.board.pk})
+            context["from_page_title"] = "Archive"
+        if page == "backlog":
+            context["from_page"] = reverse("board-backlog", kwargs={"pk": obj.board.pk})
+            context["from_page_title"] = "Backlog"
         context["object"] = obj
         context["ticket_comments"] = obj.comments.all().order_by("-created_at")
         context["users"] = User.objects.all()
