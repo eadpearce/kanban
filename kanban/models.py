@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from kanban.constants import BasicStatuses
+
 User = get_user_model()
 
 
@@ -23,6 +25,14 @@ class Board(TimestampedMixin):
         return self.name
 
     @property
+    def todo_status(self):
+        return TicketStatus.objects.get(board=self, name=BasicStatuses.TODO)
+
+    @property
+    def done_status(self):
+        return TicketStatus.objects.get(board=self, name=BasicStatuses.DONE)
+
+    @property
     def active_sprint(self):
         today = timezone.now()
         return Sprint.objects.filter(
@@ -39,7 +49,7 @@ class BoardMembership(models.Model):
         return f"{self.board.name} membership {self.user.get_full_name()}"
 
     class Meta:
-        unique_together = ["board", "user"]
+        unique_together = ("board", "user")
 
 
 class TicketStatus(models.Model):
@@ -52,6 +62,7 @@ class TicketStatus(models.Model):
 
     class Meta:
         ordering = ("order",)
+        unique_together = ("board", "name")
 
 
 class Sprint(models.Model):

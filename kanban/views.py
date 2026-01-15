@@ -241,9 +241,7 @@ class BacklogView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(
-            board__id=self.kwargs["pk"], status__isnull=True, sprint__isnull=True
-        )
+        return queryset.filter(board__id=self.kwargs["pk"], sprint__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -520,7 +518,6 @@ class CreateTicketView(FormView):
     def form_valid(self, form):
         author = User.objects.get(id=self.request.user.id)
         board = Board.objects.get(pk=self.kwargs.get("pk"))
-        todo = TicketStatus.objects.get(board=board, name=BasicStatuses.TODO)
         Ticket.objects.create(
             title=form.cleaned_data["title"],
             description=form.cleaned_data["description"],
@@ -528,7 +525,7 @@ class CreateTicketView(FormView):
             author=author,
             assignee=form.cleaned_data["assignee"],
             sprint=form.cleaned_data["sprint"],
-            status=todo,
+            status=board.todo_status,
         )
         return self.get_success_url(board.id)
 
