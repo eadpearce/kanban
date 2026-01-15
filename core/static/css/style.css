@@ -17,8 +17,7 @@
 .kanban-column {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  max-width: 270px;
+  min-width: 270px;
 }
 
 .kanban-ticket-list {
@@ -33,6 +32,7 @@
 .kanban-container {
   display: flex;
   margin-bottom: 20px;
+  overflow: scroll;
 }
 
 .kanban-ticket {

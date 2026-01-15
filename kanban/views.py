@@ -136,21 +136,21 @@ class BoardEditColumnsView(DetailView):
     def post(self, request, *args, **kwargs):
         selected_statuses = request.POST.getlist("selected_status")
         action = request.POST.get("form-action")
+        board = Board.objects.get(pk=self.kwargs["pk"])
         if action == "delete":
             statuses = TicketStatus.objects.filter(id__in=selected_statuses).exclude(
                 name__in=[BasicStatuses.TODO, BasicStatuses.DONE]
             )
             column_names = ", ".join([f"“{status.name}”" for status in statuses])
             tickets = Ticket.objects.filter(status__id__in=statuses)
-            tickets.update(status=None)
+            tickets.update(status=board.todo_status)
             for ticket in tickets:
                 ticket.save()
             statuses.delete()
             messages.success(
                 request,
-                f"Column(s) {column_names} deleted. Any associated tickets have been moved to the backlog",
+                f"Column(s) {column_names} deleted. Any associated tickets have been moved back into “To do”",
             )
-        board = Board.objects.get(pk=self.kwargs["pk"])
         return redirect(reverse("board-edit-columns", kwargs={"pk": board.pk}))
 
 
