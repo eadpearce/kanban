@@ -1,7 +1,8 @@
 from django.utils import timezone
-
 from django.db import models
 from django.contrib.auth import get_user_model
+
+from ckeditor.fields import RichTextField
 
 from kanban.constants import BasicStatuses, StatusColours
 
@@ -92,7 +93,7 @@ class Sprint(models.Model):
 
 class Ticket(TimestampedMixin):
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    description = RichTextField(blank=True)
     board = models.ForeignKey(Board, related_name="tickets", on_delete=models.CASCADE)
     status = models.ForeignKey(
         TicketStatus,
@@ -135,7 +136,7 @@ class Ticket(TimestampedMixin):
 
 
 class Comment(TimestampedMixin):
-    text = models.TextField()
+    text = RichTextField()
     author = models.ForeignKey(
         User,
         related_name="comments",

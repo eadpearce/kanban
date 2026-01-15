@@ -1,3 +1,40 @@
+/* ckeditor styles */
+@media print {
+	body {
+		margin: 0 !important;
+	}
+}
+
+:root {
+	--ck-content-font-family: helvetica, arial, sans-serif;
+}
+
+.main-container {
+	font-family: var(--ck-content-font-family);
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.editor-container_classic-editor .editor-container__editor {
+	min-width: 795px;
+	max-width: 795px;
+}
+
+.editor-container__sidebar_ckeditor-ai:has(.ck-tabs.ck-hidden) {
+	max-width: 0;
+	min-width: 0;
+}
+
+.django-ckeditor-widget {
+  display: block !important;
+}
+/* end ckeditor styles */
+
+body {
+  font-family: helvetica,arial,sans-serif;
+}
+
 .kanban-header {
   border-top: 5px solid #fff;
   border-bottom: 0;
@@ -119,4 +156,22 @@
 
 .kanban-comment--author {
   font-weight: bold;
+}
+
+.kanban-comment a {
+  color: rgb(29, 112, 184);
+  font-family: helvetica,arial,sans-serif;
+  text-decoration: underline;
+  text-decoration-thickness: auto;
+  text-decoration-thickness: max(1px,.0625rem);
+  text-underline-offset: .1578em;
+}
+
+.kanban-comment a:hover {
+  text-decoration-thickness: max(3px,.1875rem,.12em);
+  -webkit-text-decoration-skip-ink: none;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip: none;
+  text-decoration-skip: none;
+  color: #003078;
 }

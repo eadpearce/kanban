@@ -10,6 +10,7 @@ ipython = "*"
 crispy-forms-gds = "*"
 django-crispy-forms = "*"
 factory-boy = "*"
+django-ckeditor = "*"
 
 [dev-packages]
 

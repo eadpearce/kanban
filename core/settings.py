@@ -28,6 +28,44 @@ DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = []
 
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar_kanbanConfig": [
+            {
+                "name": "clipboard",
+                "items": [
+                    "Undo",
+                    "Redo",
+                ],
+            },
+            {
+                "name": "basicstyles",
+                "items": [
+                    "Bold",
+                    "Italic",
+                    "Underline",
+                    "Strike",
+                    "Subscript",
+                    "Superscript",
+                    "-",
+                    "RemoveFormat",
+                ],
+            },
+            {
+                "name": "paragraph",
+                "items": [
+                    "NumberedList",
+                    "BulletedList",
+                    "Blockquote",
+                ],
+            },
+            {"name": "links", "items": ["Link", "Unlink"]},
+        ],
+        "toolbar": "kanbanConfig",
+        "width": "100%",
+    }
+}
+
 
 # Application definition
 
@@ -41,6 +79,7 @@ INSTALLED_APPS = [
     "kanban",
     "crispy_forms",
     "crispy_forms_gds",
+    "ckeditor",
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = (

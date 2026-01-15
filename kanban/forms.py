@@ -5,6 +5,8 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds import layout
 from crispy_forms_gds.layout import Hidden
 
+from ckeditor.widgets import CKEditorWidget
+
 from kanban.models import (
     Ticket,
     Board,
@@ -321,7 +323,7 @@ class TicketCreateForm(forms.ModelForm):
     )
     description = forms.CharField(
         label="Description",
-        widget=forms.Textarea(),
+        widget=CKEditorWidget(),
         required=False,
     )
     sprint = forms.ModelChoiceField(
@@ -386,7 +388,7 @@ class TicketEditForm(forms.ModelForm):
     )
     description = forms.CharField(
         label="Description",
-        widget=forms.Textarea(),
+        widget=CKEditorWidget(),
         error_messages={
             "required": "Please enter a description",
         },
@@ -530,7 +532,7 @@ class TicketDescriptionForm(forms.ModelForm):
     form_name = forms.CharField()
     description = forms.CharField(
         label="",
-        widget=forms.Textarea(),
+        widget=CKEditorWidget(),
         required=False,
     )
 
@@ -558,7 +560,7 @@ class CommentCreateForm(forms.ModelForm):
     form_name = forms.CharField()
     text = forms.CharField(
         label="",
-        widget=forms.Textarea(),
+        widget=CKEditorWidget(),
         error_messages={
             "required": "Comment text cannot be blank",
         },

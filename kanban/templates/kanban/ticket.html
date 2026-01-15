@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags static %}
 
 {% block page_title %}Kanban board - {{ object.name }}{% endblock %}
 
@@ -108,7 +108,7 @@
     <span class="kanban-comment--author">{{ comment.author.get_full_name }}</span><br/>
     <time class="govuk-body govuk-!-font-size-16">{{ comment.created_at }}</time>
   </p>
-  <p class="govuk-body">{{ comment.text }}</p>
+  <div class="comment-text">{{ comment.text|safe }}</div>
 </div>
 {% endfor %}
 
