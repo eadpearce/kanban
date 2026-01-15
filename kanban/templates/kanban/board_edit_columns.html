@@ -39,14 +39,16 @@
           <div class="govuk-checkboxes__item kanban-ticket-small" {% if not status.name == 'Done' and not status.name == 'To do' %}draggable="true"{% endif %} data-id="{{ status.id }}">
             {% if not status.name == "Done" and not status.name == "To do" %}
             <input class="govuk-checkboxes__input" type="checkbox" name="selected_status" value="{{ status.id }}">
-            <label class="govuk-label govuk-checkboxes__label"><span id="current-{{ status.id}}">{{ status.name }}</span></label>
+            <label class="govuk-label govuk-checkboxes__label">
+              <span class="govuk-tag govuk-tag--{{ status.colour }}">{{ status.name }}</span>
+            </label>
             {% if is_owner %}
             <p class="govuk-body kanban-status kanban-status--action">
-              <a class="govuk-link govuk-link--no-visited-state" href="{% url 'status-edit' status.id %}">Rename</a>
+              <a class="govuk-link govuk-link--no-visited-state" href="{% url 'status-edit' status.id %}">Edit</a>
             </p>
             {% endif %}
             {% else %}
-            <p class="govuk-body kanban-status kanban-protected">{{ status.name }}</p>
+            <p class="govuk-body kanban-status kanban-protected"><span class="govuk-tag govuk-tag--{{ status.colour }}">{{ status.name }}</span></p>
             {% endif %}
           </div>
           {% endfor %}

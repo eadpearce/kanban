@@ -96,6 +96,16 @@
   margin-bottom: 0;
 }
 
+.kanban-status--action {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-grow: 1;
+}
+
+.kanban-status--action a {
+  flex-direction: row-reverse;
+}
+
 .kanban-protected {
   cursor: not-allowed;
 }

@@ -14,7 +14,7 @@ from kanban.models import (
     User,
     Comment,
 )
-from kanban.constants import BasicStatuses
+from kanban.constants import StatusColours
 
 
 class UserChoiceField(forms.ModelChoiceField):
@@ -202,12 +202,43 @@ class CreateMembershipForm(forms.ModelForm):
         )
 
 
+class ColourSelectWidget(forms.RadioSelect):
+    option_template_name = "kanban/forms/colour_select_option.html"
+
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        index = str(index) if subindex is None else "%s_%s" % (index, subindex)
+        option_attrs = (
+            self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
+        )
+        if selected:
+            option_attrs.update(self.checked_attribute)
+        if "id" in option_attrs:
+            option_attrs["id"] = self.id_for_label(option_attrs["id"], index)
+        return {
+            "name": name,
+            "colour": value,
+            "value": value,
+            "label": label,
+            "selected": selected,
+            "index": index,
+            "attrs": option_attrs,
+            "type": self.input_type,
+            "template_name": self.option_template_name,
+            "wrap_label": True,
+        }
+
+
 class StatusCreateForm(forms.ModelForm):
     name = forms.CharField(
         label="Name",
         error_messages={
             "required": "Please enter a name",
         },
+    )
+    colour = forms.ChoiceField(
+        label="Colour", choices=StatusColours.choices, widget=ColourSelectWidget
     )
 
     class Meta:
@@ -220,16 +251,61 @@ class StatusCreateForm(forms.ModelForm):
 
         back_url = reverse_lazy("board-edit-columns", kwargs={"pk": board_id})
 
+        self.fields["colour"].initial = StatusColours.DEFAULT
+
         self.helper = FormHelper(self)
         self.helper.layout = layout.Layout(
             layout.HTML(
-                f'<a href="{back_url}" class="govuk-back-link">Back to board columns</a>'
+                f'<a href="{back_url}" class="govuk-back-link">Back to manage columns</a>'
             ),
             layout.HTML.h1("Create a new column"),
             "name",
+            layout.Field.radios("colour", template="kanban/forms/colour_select.html"),
             layout.Submit(
                 "submit",
                 "Create",
+                data_module="govuk-button",
+                data_prevent_double_click="true",
+            ),
+        )
+
+
+class StatusEditForm(forms.ModelForm):
+    name = forms.CharField(
+        label="Name",
+        error_messages={
+            "required": "Please enter a name",
+        },
+    )
+    colour = forms.ChoiceField(
+        label="Colour",
+        choices=StatusColours.choices,
+        widget=ColourSelectWidget,
+        error_messages={
+            "required": "Please choose a colour",
+        },
+    )
+
+    class Meta:
+        model = TicketStatus
+        fields = ("name", "colour")
+
+    def __init__(self, *args, **kwargs):
+        board_id = kwargs.pop("board_id")
+        super().__init__(*args, **kwargs)
+        back_url = reverse_lazy("board-edit-columns", kwargs={"pk": board_id})
+
+        self.helper = FormHelper(self)
+        self.helper.layout = layout.Layout(
+            layout.HTML(
+                f'<a href="{back_url}" class="govuk-back-link">Back to manage columns</a>'
+            ),
+            layout.HTML.h1("Edit status"),
+            "name",
+            layout.Field.radios("colour", template="kanban/forms/colour_select.html"),
+            layout.Submit(
+                "submit",
+                "Save",
                 data_module="govuk-button",
                 data_prevent_double_click="true",
             ),
@@ -469,29 +545,6 @@ class TicketDescriptionForm(forms.ModelForm):
         self.helper.layout = layout.Layout(
             Hidden("form_name", value="description"),
             "description",
-            layout.Submit(
-                "submit",
-                "Save",
-                data_module="govuk-button",
-                data_prevent_double_click="true",
-            ),
-        )
-
-
-class StatusEditForm(forms.ModelForm):
-    name = forms.CharField(label="")
-
-    class Meta:
-        model = TicketStatus
-        fields = ("name",)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper(self)
-        self.helper.layout = layout.Layout(
-            layout.HTML.h1("Rename ticket"),
-            "name",
             layout.Submit(
                 "submit",
                 "Save",

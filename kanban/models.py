@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from kanban.constants import BasicStatuses
+from kanban.constants import BasicStatuses, StatusColours
 
 User = get_user_model()
 
@@ -56,6 +56,9 @@ class TicketStatus(models.Model):
     name = models.CharField(max_length=100)
     board = models.ForeignKey(Board, related_name="statuses", on_delete=models.CASCADE)
     order = models.PositiveIntegerField(default=0)
+    colour = models.CharField(
+        choices=StatusColours.choices, max_length=10, default=StatusColours.DEFAULT
+    )
 
     def __str__(self):
         return self.name

@@ -35,7 +35,7 @@
     <dt class="govuk-summary-list__key">Columns (ticket statuses):</dt>
     <dd class="govuk-summary-list__value">
       {% for status in object.statuses.all %}
-      {{ status.name }}{% if not forloop.last %},{% endif %}
+      <span class="govuk-tag govuk-tag--{{ status.colour }}">{{ status.name }}</span>{% if not forloop.last %},{% endif %}
       {% endfor %}
     </dd>
     {% if is_owner %}

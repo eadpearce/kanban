@@ -22,7 +22,7 @@ from kanban.models import (
     User,
 )
 from kanban import forms
-from kanban.constants import BasicStatuses
+from kanban.constants import BasicStatuses, DEFAULT_COLOUR_MAPPING
 
 
 class CreateBoardView(FormView):
@@ -39,7 +39,9 @@ class CreateBoardView(FormView):
         )
         # create basic statuses by default
         for i, name in enumerate(BasicStatuses.values):
-            TicketStatus.objects.create(name=name, board=board, order=i)
+            TicketStatus.objects.create(
+                name=name, board=board, order=i, colour=DEFAULT_COLOUR_MAPPING[name]
+            )
 
         BoardMembership.objects.create(
             board=board, user=self.request.user, is_owner=True
@@ -549,6 +551,7 @@ class CreateStatusView(FormView):
         TicketStatus.objects.create(
             name=data["name"],
             board=board,
+            colour=data["colour"],
         )
         return self.get_success_url(board.id)
 
@@ -567,8 +570,14 @@ class EditStatusView(UpdateView):
         data = form.cleaned_data
         status = form.instance
         status.name = data["name"]
+        status.colour = data["colour"]
         status.save()
         return redirect(reverse("board-edit-columns", kwargs={"pk": status.board.id}))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["board_id"] = self.object.board.id
+        return kwargs
 
 
 class CreateSprintView(FormView):
