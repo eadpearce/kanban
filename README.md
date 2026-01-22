@@ -1,5 +1,11 @@
 # kanban
 
+## Tools used
+
+* [Gov uk design system](https://design-system.service.gov.uk/)
+* [Django](https://www.djangoproject.com/)
+* [Django CKEditor](https://django-ckeditor.readthedocs.io/en/latest/#) (version of ckeditor is now outdated unfortunately)
+
 ## Installation
 
 ### Requirements
